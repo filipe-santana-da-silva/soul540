@@ -4,7 +4,6 @@ import { useAuth } from '@frontend/hooks/useAuth';
 import { ROUTES } from '@frontend/routes';
 import Button from '@frontend/components/Button/Button';
 import Input from '@frontend/components/Input/Input';
-import Logo from '@frontend/components/Logo/Logo';
 import styles from './Login.module.scss';
 
 

@@ -111,7 +111,6 @@ export default function ContractDocument({ contract, event, eventName, onClose }
     setEditing(false);
     await new Promise((r) => setTimeout(r, 150));
     try {
-      // @ts-expect-error html2pdf.js has no types
       const html2pdf = (await import('html2pdf.js')).default;
       await html2pdf()
         .set({
