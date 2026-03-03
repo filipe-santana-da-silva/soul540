@@ -1,0 +1,100 @@
+@use 'reset';
+@use 'variables' as *;
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+// ── Theme tokens ───────────────────────────────────────────────────────────────
+:root,
+html[data-theme='dark'] {
+  --bg-primary:    #0a0f1e;
+  --bg-secondary:  #111827;
+  --bg-tertiary:   #1f2937;
+  --bg-input:      #151c2c;
+  --bg-card:       #111827;
+  --bg-elevated:   #1a2235;
+  --text-primary:  #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border:        #1e293b;
+  --border-subtle: rgba(30, 41, 59, 0.6);
+  --border-faint:  rgba(30, 41, 59, 0.5);
+  --sidebar-gradient-top: #0e1525;
+}
+
+html[data-theme='light'] {
+  --bg-primary:    #f4f6f9;
+  --bg-secondary:  #ffffff;
+  --bg-tertiary:   #f1f5f9;
+  --bg-input:      #f0f3f8;
+  --bg-card:       #ffffff;
+  --bg-elevated:   #fafbfd;
+  --text-primary:  #0f172a;
+  --text-secondary: #334155;
+  --border:        #e2e8f0;
+  --border-subtle: rgba(226, 232, 240, 0.6);
+  --border-faint:  rgba(226, 232, 240, 0.5);
+  --sidebar-gradient-top: #f0f4f8;
+}
+
+html.theme-switching * {
+  transition: background-color 0.25s ease, color 0.2s ease, border-color 0.2s ease !important;
+}
+
+// ── Base ───────────────────────────────────────────────────────────────────────
+body {
+  font-family: $font-family;
+  font-size: $font-size-base;
+  color: $text-primary;
+  background-color: $bg-primary;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba($accent, 0.3);
+  color: $text-primary;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba($text-muted, 0.25);
+  border-radius: 3px;
+
+  &:hover {
+    background: rgba($text-muted, 0.45);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

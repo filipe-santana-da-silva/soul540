@@ -1,0 +1,92 @@
+// === Cores — Theme-aware (CSS custom properties) ===
+$bg-primary:    var(--bg-primary);
+$bg-secondary:  var(--bg-secondary);
+$bg-tertiary:   var(--bg-tertiary);
+$bg-input:      var(--bg-input);
+$bg-card:       var(--bg-card);
+$bg-elevated:   var(--bg-elevated);
+
+$text-primary:   var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-muted:     #64748b;
+
+$accent: #f59e0b;
+$accent-hover: #eab308;
+$accent-light: rgba(245, 158, 11, 0.12);
+$accent-glow: rgba(245, 158, 11, 0.25);
+
+$danger: #ef4444;
+$success: #22c55e;
+$info: #3b82f6;
+
+$border:        var(--border);
+$border-light:  var(--border);
+$border-subtle: var(--border-subtle);
+$border-faint:  var(--border-faint);
+$border-accent: rgba(245, 158, 11, 0.2);
+
+// Raw hex values para SCSS rgba() (valores do tema escuro)
+$raw-bg-primary:   #0a0f1e;
+$raw-bg-secondary: #111827;
+$raw-bg-tertiary:  #1f2937;
+$raw-bg-input:     #151c2c;
+
+// === Tipografia ===
+$font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-display: 'Cormorant', Georgia, serif;
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.875rem;
+$font-size-base: 1rem;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.25rem;
+$font-size-2xl: 1.5rem;
+$font-size-3xl: 2rem;
+$font-size-4xl: 2.5rem;
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// === Espacamentos ===
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 64px;
+
+// === Bordas ===
+$radius-xs: 6px;
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-full: 9999px;
+
+// === Gradientes ===
+$gradient-amber: linear-gradient(135deg, #f59e0b, #f97316);
+$gradient-blue: linear-gradient(135deg, #3b82f6, #6366f1);
+$gradient-green: linear-gradient(135deg, #22c55e, #10b981);
+$gradient-purple: linear-gradient(135deg, #a855f7, #ec4899);
+
+// === Sombras ===
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+$shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+$shadow-glow: 0 0 24px rgba(245, 158, 11, 0.18);
+$shadow-glow-blue: 0 0 24px rgba(59, 130, 246, 0.15);
+$shadow-glow-green: 0 0 24px rgba(34, 197, 94, 0.15);
+$shadow-glow-purple: 0 0 24px rgba(168, 85, 247, 0.15);
+$shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.03);
+
+// === Transicoes ===
+$transition-fast: 0.15s ease;
+$transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// === Breakpoints ===
+$mobile: 768px;
+$tablet: 1024px;
+$desktop: 1280px;

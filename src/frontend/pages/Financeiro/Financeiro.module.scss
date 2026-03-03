@@ -1,0 +1,756 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.page {
+  padding: $spacing-2xl $spacing-xl;
+  animation: fadeIn 0.4s ease;
+
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+// Header
+.header {
+  @include flex-between;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.headerLeft {
+  .title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin-top: 6px;
+  }
+}
+
+.headerActions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+// Tabs
+.tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: $spacing-xl;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 4px;
+  width: fit-content;
+  max-width: 100%;
+
+  @include mobile {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+}
+
+.tab {
+  padding: 8px 20px;
+  border-radius: $radius-xs;
+  border: none;
+  background: none;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-base;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text-primary;
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.tabActive {
+  background: $accent;
+  color: $bg-primary;
+  font-weight: $font-weight-semibold;
+  box-shadow: 0 1px 4px rgba($accent, 0.3);
+
+  &:hover {
+    background: $accent-hover;
+    color: $bg-primary;
+  }
+}
+
+.tabContent {
+  animation: fadeIn 0.3s ease;
+}
+
+// Summary Bar (Visao Geral)
+.summaryBar {
+  @include card;
+  display: flex;
+  align-items: center;
+  padding: $spacing-lg $spacing-xl;
+  margin-bottom: $spacing-xl;
+  gap: $spacing-xl;
+  flex-wrap: wrap;
+
+  @include mobile {
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.summaryItemLabel {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summaryItemValue {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  letter-spacing: -0.5px;
+}
+
+.green { color: #4ade80; }
+.red { color: #f87171; }
+.amber { color: #fbbf24; }
+.blue { color: #60a5fa; }
+
+.summaryDivider {
+  width: 1px;
+  height: 40px;
+  background: $border;
+
+  @include mobile { display: none; }
+}
+
+// Chart sections
+.chartSection {
+  @include card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-xl;
+}
+
+.sectionTitle {
+  @include section-title;
+  margin-bottom: $spacing-lg;
+}
+
+.chartContainer {
+  margin: 0 (0 - $spacing-sm);
+}
+
+// Gauges Grid
+.gaugesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gaugeCard {
+  @include card;
+  padding: $spacing-xl $spacing-lg;
+  @include flex-center;
+}
+
+// Filter Row
+.filterRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filterGroup {
+  display: flex;
+  gap: 2px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 3px;
+}
+
+.filterBtn {
+  padding: 6px 14px;
+  border-radius: $radius-xs;
+  border: none;
+  background: none;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-base;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text-primary;
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.filterBtnActive {
+  background: $accent;
+  color: $bg-primary;
+  box-shadow: 0 1px 4px rgba($accent, 0.3);
+
+  &:hover {
+    background: $accent-hover;
+    color: $bg-primary;
+  }
+}
+
+// Category chips
+.categoryChips {
+  @include card;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: $radius-full;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+}
+
+.chipDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+// Month selector
+.monthSelector {
+  display: flex;
+  gap: 4px;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 4px;
+}
+
+.monthBtn {
+  padding: 6px 14px;
+  border-radius: $radius-xs;
+  border: none;
+  background: none;
+  color: $text-muted;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-base;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text-primary;
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.monthBtnActive {
+  background: $accent;
+  color: $bg-primary;
+  font-weight: $font-weight-semibold;
+  box-shadow: 0 1px 4px rgba($accent, 0.3);
+
+  &:hover {
+    background: $accent-hover;
+    color: $bg-primary;
+  }
+}
+
+// Monthly Summary Bar (Revenue - Expenses = Profit)
+.monthSummary {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @include mobile {
+    flex-direction: column;
+  }
+}
+
+.monthSummaryItem {
+  @include card;
+  padding: $spacing-md $spacing-xl;
+  text-align: center;
+  min-width: 160px;
+  flex: 1;
+}
+
+.monthRevenue {
+  border-top: 3px solid #4ade80;
+}
+
+.monthExpense {
+  border-top: 3px solid #f87171;
+}
+
+.monthProfit {
+  border-top: 3px solid #4ade80;
+}
+
+.monthLoss {
+  border-top: 3px solid #f87171;
+}
+
+.monthSummaryLabel {
+  display: block;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.monthSummaryValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+}
+
+.monthSummaryOperator {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $text-muted;
+
+  @include mobile { display: none; }
+}
+
+// Horizontal bars grid
+.barsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+
+  @include tablet { grid-template-columns: 1fr; }
+}
+
+.barCard {
+  @include card;
+  padding: $spacing-lg;
+}
+
+// Search Input
+.searchInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 9px $spacing-md;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  transition: all $transition-base;
+
+  &::placeholder { color: $text-muted; }
+  &:focus {
+    outline: none;
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba($accent, 0.08);
+  }
+}
+
+// Table
+.tableWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: $radius-lg;
+
+  @include mobile {
+    border-radius: 0;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  @include card;
+  overflow: hidden;
+  min-width: 600px;
+
+  @include mobile {
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+.table th {
+  text-align: left;
+  padding: $spacing-md $spacing-lg;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid $border;
+  background: rgba($raw-bg-tertiary, 0.2);
+}
+
+.table td {
+  padding: 12px $spacing-lg;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  border-bottom: 1px solid $border-faint;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr {
+  transition: background $transition-fast;
+}
+
+.table tr:hover td {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.typeRevenue {
+  color: #4ade80;
+  font-weight: $font-weight-semibold;
+}
+
+.typeCost {
+  color: #f87171;
+  font-weight: $font-weight-semibold;
+}
+
+.categoryTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: $font-size-xs;
+}
+
+.categoryDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  @include flex-center;
+  width: 30px;
+  height: 30px;
+  border-radius: $radius-xs;
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: $text-primary;
+  }
+}
+
+.actionBtnDanger {
+  &:hover {
+    background: rgba($danger, 0.1);
+    color: $danger;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-3xl;
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+.tableNote {
+  text-align: center;
+  padding: $spacing-md;
+  color: $text-muted;
+  font-size: $font-size-xs;
+}
+
+// Category list
+.catList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: $spacing-md;
+}
+
+.catRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.catDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.catName {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.catBarWrap {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.catBar {
+  height: 100%;
+  border-radius: 3px;
+  opacity: 0.75;
+  transition: width 0.3s ease;
+}
+
+.catValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  min-width: 100px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+// Agendamentos Card
+.agendamentosCard {
+  @include card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-xl;
+}
+
+.agendamentosHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
+}
+
+.agendamentosPills {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.agendamentosPill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px $spacing-md;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  min-width: 110px;
+}
+
+.agendamentosPillLabel {
+  font-size: 10px;
+  font-weight: $font-weight-medium;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.agendamentosPillValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+}
+
+.agendamentosEmpty {
+  text-align: center;
+  padding: $spacing-xl;
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+.agendamentosList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agendamentoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: 10px $spacing-md;
+  border-radius: $radius-xs;
+  transition: background $transition-fast;
+
+  &:hover { background: rgba(255,255,255,0.025); }
+  & + & { border-top: 1px solid $border-faint; }
+}
+
+.agendamentoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.agendamentoName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  @include text-ellipsis;
+}
+
+.agendamentoDate {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.agendamentoRight {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex-shrink: 0;
+}
+
+.agendamentoValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  min-width: 100px;
+  text-align: right;
+}
+
+.agendamentoStatus {
+  padding: 4px 8px;
+  border-radius: $radius-xs;
+  border: 1px solid $border;
+  background: $bg-input;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+
+  &:focus { outline: none; border-color: $accent; }
+}
+
+.statusPending {
+  color: #fbbf24;
+  border-color: rgba(251,191,36,0.3);
+  background-color: rgba(251,191,36,0.07);
+}
+
+.statusReceived {
+  color: #4ade80;
+  border-color: rgba(74,222,128,0.3);
+  background-color: rgba(74,222,128,0.07);
+}
+
+.agendamentoNoFinance {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+// Form
+.form {
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.formField {
+  @include flex-column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+}
+
+.formSelect,
+.formInput,
+.formTextarea {
+  padding: 10px $spacing-md;
+  background: $bg-input;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  transition: all $transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba($accent, 0.08);
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: $spacing-sm;
+  justify-content: flex-end;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid $border;
+}

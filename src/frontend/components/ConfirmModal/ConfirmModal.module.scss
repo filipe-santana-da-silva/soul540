@@ -1,0 +1,143 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  @include flex-center;
+  z-index: 200;
+  padding: $spacing-lg;
+  animation: overlayIn 0.2s ease;
+
+  @include mobile { padding: $spacing-xs; align-items: flex-end; }
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-xl;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  animation: modalIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @include mobile {
+    border-radius: $radius-xl $radius-xl 0 0;
+    animation: modalInMobile 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes modalInMobile {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  @include flex-between;
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: 1px solid $border;
+}
+
+.title {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.closeBtn {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-sm;
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all $transition-fast;
+  &:hover { background: rgba(255, 255, 255, 0.06); color: $text-primary; }
+}
+
+.body {
+  padding: $spacing-xl;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  text-align: center;
+}
+
+.iconWrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  @include flex-center;
+  color: #f87171;
+  flex-shrink: 0;
+}
+
+.message {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  line-height: 1.6;
+  strong { color: $text-primary; }
+}
+
+.footer {
+  @include flex-between;
+  padding: $spacing-md $spacing-xl;
+  border-top: 1px solid $border;
+  gap: $spacing-sm;
+}
+
+.btnCancel {
+  padding: 10px $spacing-md;
+  background: none;
+  border: none;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  border-radius: $radius-sm;
+  transition: color $transition-fast;
+  &:hover { color: $text-primary; }
+}
+
+.btnConfirm {
+  padding: 10px $spacing-lg;
+  background: $accent;
+  border: none;
+  border-radius: $radius-sm;
+  color: #0a0f1e;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: background $transition-fast;
+  &:hover { background: $accent-hover; }
+}
+
+.btnDanger {
+  padding: 10px $spacing-lg;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: $radius-sm;
+  color: #f87171;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-fast;
+  &:hover { background: rgba(239, 68, 68, 0.22); border-color: rgba(239, 68, 68, 0.5); }
+}

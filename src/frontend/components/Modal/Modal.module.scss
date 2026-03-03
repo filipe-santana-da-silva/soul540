@@ -1,0 +1,102 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  @include flex-center;
+  z-index: 100;
+  padding: $spacing-lg;
+  animation: overlayIn 0.2s ease;
+
+  @include mobile {
+    padding: $spacing-xs;
+    align-items: flex-end;
+  }
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-xl;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  animation: modalIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @include mobile {
+    border-radius: $radius-xl $radius-xl 0 0;
+    max-height: 88vh;
+    animation: modalInMobile 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalInMobile {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sm { max-width: 400px; }
+.md { max-width: 560px; }
+.lg { max-width: 720px; }
+.xl { max-width: 900px; }
+
+.header {
+  @include flex-between;
+  padding: $spacing-lg $spacing-lg;
+  border-bottom: 1px solid $border;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.closeBtn {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-sm;
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  font-size: $font-size-lg;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: $text-primary;
+  }
+}
+
+.body {
+  padding: $spacing-lg;
+}

@@ -1,0 +1,92 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.page { padding: $spacing-2xl $spacing-xl; animation: fadeIn 0.4s ease; @include mobile { padding: $spacing-md; } }
+.header { @include flex-between; margin-bottom: $spacing-2xl; flex-wrap: wrap; gap: $spacing-md; }
+.title { font-size: $font-size-3xl; font-weight: $font-weight-bold; color: $text-primary; letter-spacing: -0.5px; }
+.subtitle { font-size: $font-size-sm; color: $text-muted; margin-top: 6px; }
+
+.controls { display: flex; align-items: center; gap: $spacing-md; margin-bottom: $spacing-xl; flex-wrap: wrap; }
+.searchWrap { position: relative; flex: 1; max-width: 400px; }
+.searchIcon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: $text-muted; pointer-events: none; }
+.searchInput { width: 100%; background: $bg-secondary; border: 1px solid $border; border-radius: $radius-sm; padding: 9px 12px 9px 36px; font-size: $font-size-sm; color: $text-primary; &::placeholder { color: $text-muted; } &:focus { outline: none; border-color: $border-accent; } }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: $spacing-md; @include tablet { grid-template-columns: repeat(2, 1fr); } @include mobile { grid-template-columns: 1fr; } }
+.card { @include card; @include card-hover; padding: $spacing-lg; display: flex; flex-direction: column; gap: $spacing-md; }
+.cardHeader { @include flex-between; gap: $spacing-sm; }
+.cardName { font-size: $font-size-base; font-weight: $font-weight-semibold; color: $text-primary; }
+.cardEvent { font-size: $font-size-xs; color: $accent; margin-top: 4px; }
+.cardStats { display: flex; gap: 4px; flex-shrink: 0; }
+.statBadge { font-size: $font-size-xs; background: rgba(255,255,255,0.06); border: 1px solid $border; border-radius: $radius-full; padding: 2px 8px; color: $text-muted; }
+.cardSubText { font-size: $font-size-xs; color: $text-muted; font-style: italic; }
+.categoriesList { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.catItem { @include flex-between; padding: 6px $spacing-sm; background: rgba(255,255,255,0.02); border-radius: $radius-xs; }
+.catName { font-size: $font-size-sm; color: $text-secondary; }
+.catCount { font-size: $font-size-xs; color: $text-muted; }
+.cardActions { display: flex; gap: $spacing-sm; padding-top: $spacing-sm; border-top: 1px solid $border; }
+.empty { text-align: center; padding: $spacing-3xl; color: $text-muted; font-size: $font-size-sm; }
+
+.btnPrimary { display: flex; align-items: center; gap: $spacing-sm; padding: 10px $spacing-md; background: $accent; color: #0a0f1e; font-size: $font-size-sm; font-weight: $font-weight-semibold; border: none; border-radius: $radius-sm; cursor: pointer; transition: background $transition-fast; &:hover { background: $accent-hover; } &:disabled { opacity: 0.5; cursor: not-allowed; } }
+.btnView { flex: 1; padding: 8px; background: rgba(59,130,246,0.1); border: none; border-radius: $radius-xs; color: #60a5fa; font-size: $font-size-sm; cursor: pointer; &:hover { background: rgba(59,130,246,0.2); } }
+.btnEdit { flex: 1; padding: 8px; background: rgba(255,255,255,0.04); border: 1px solid $border; border-radius: $radius-xs; color: $text-secondary; font-size: $font-size-sm; cursor: pointer; &:hover { background: rgba(255,255,255,0.08); } }
+.btnDelete { padding: 8px 12px; background: rgba(239,68,68,0.08); border: none; border-radius: $radius-xs; color: #f87171; font-size: $font-size-sm; cursor: pointer; &:hover { background: rgba(239,68,68,0.15); } }
+.btnCancel { padding: 10px $spacing-md; background: none; border: none; color: $text-muted; font-size: $font-size-sm; cursor: pointer; &:hover { color: $text-primary; } }
+
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; padding: $spacing-md; backdrop-filter: blur(4px); }
+.modal { background: $bg-secondary; border: 1px solid $border; border-radius: $radius-lg; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: $shadow-lg; }
+.preview { background: $bg-secondary; border: 1px solid $border; border-radius: $radius-lg; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: $shadow-lg; }
+.modalHeader { @include flex-between; padding: $spacing-lg $spacing-xl; border-bottom: 1px solid $border; position: sticky; top: 0; background: $bg-secondary; z-index: 1; }
+.modalTitle { font-size: $font-size-lg; font-weight: $font-weight-semibold; color: $text-primary; }
+.modalClose { @include flex-center; width: 32px; height: 32px; background: none; border: none; color: $text-muted; border-radius: $radius-xs; cursor: pointer; &:hover { background: rgba(255,255,255,0.06); color: $text-primary; } }
+.modalBody { padding: $spacing-xl; display: flex; flex-direction: column; gap: $spacing-md; }
+.modalFooter { @include flex-between; padding: $spacing-md $spacing-xl; border-top: 1px solid $border; position: sticky; bottom: 0; background: $bg-secondary; z-index: 1; }
+
+.formGrid2 { display: grid; grid-template-columns: 1fr 1fr; gap: $spacing-md; @include mobile { grid-template-columns: 1fr; } }
+.formGroup { display: flex; flex-direction: column; gap: 6px; }
+.label { font-size: $font-size-xs; font-weight: $font-weight-medium; color: $text-secondary; text-transform: uppercase; letter-spacing: 0.5px; }
+.input { background: $bg-input; border: 1px solid $border; border-radius: $radius-sm; padding: 10px 12px; font-size: $font-size-sm; color: $text-primary; transition: border-color $transition-fast; font-family: inherit; &::placeholder { color: $text-muted; } &:focus { outline: none; border-color: $border-accent; } }
+
+// Categories editor
+.categoriesSection { border: 1px solid $border; border-radius: $radius-sm; overflow: hidden; }
+.categoriesHeader { @include flex-between; padding: $spacing-md; background: rgba(255,255,255,0.02); border-bottom: 1px solid $border; }
+.categoriesTitle { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $text-primary; }
+.btnAddCat { padding: 6px 12px; background: rgba($accent, 0.1); border: 1px solid $border-accent; border-radius: $radius-xs; color: $accent; font-size: $font-size-xs; font-weight: $font-weight-medium; cursor: pointer; &:hover { background: rgba($accent, 0.2); } }
+
+.catBlock { padding: $spacing-md; border-bottom: 1px solid $border; &:last-child { border-bottom: none; } }
+.catBlockHeader { @include flex-between; gap: $spacing-sm; margin-bottom: $spacing-sm; }
+.catNameInput { flex: 1; background: $bg-input; border: 1px solid $border; border-radius: $radius-xs; padding: 6px 10px; font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $text-primary; &:focus { outline: none; border-color: $border-accent; } }
+.btnRemoveCat { @include flex-center; width: 28px; height: 28px; background: rgba(239,68,68,0.1); border: none; border-radius: $radius-xs; color: #f87171; cursor: pointer; flex-shrink: 0; }
+
+.itemRow { display: grid; grid-template-columns: 1fr 1.5fr 80px 28px; gap: 6px; margin-bottom: 6px; align-items: center; }
+.itemInput { background: $bg-input; border: 1px solid $border; border-radius: $radius-xs; padding: 6px 8px; font-size: $font-size-xs; color: $text-primary; &::placeholder { color: $text-muted; } &:focus { outline: none; border-color: $border-accent; } }
+.itemDesc {}
+.itemPrice { text-align: right; }
+.btnRemoveItem { @include flex-center; width: 28px; height: 28px; background: none; border: none; color: $text-muted; cursor: pointer; flex-shrink: 0; &:hover { color: #f87171; } }
+.btnAddItem { margin-top: $spacing-sm; padding: 5px 10px; background: rgba(255,255,255,0.04); border: 1px dashed $border; border-radius: $radius-xs; color: $text-muted; font-size: $font-size-xs; cursor: pointer; width: 100%; &:hover { color: $text-primary; border-color: $border-accent; } }
+
+// Preview
+.previewBody { padding: $spacing-xl; display: flex; flex-direction: column; gap: $spacing-lg; }
+.previewHeader { font-size: $font-size-sm; color: $text-muted; text-align: center; font-style: italic; }
+.previewTitle { font-size: $font-size-2xl; font-weight: $font-weight-bold; color: $text-primary; text-align: center; }
+.previewEvent { font-size: $font-size-sm; color: $accent; text-align: center; }
+.previewCat {}
+.previewCatName { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $text-primary; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: $spacing-sm; border-bottom: 1px solid $border; margin-bottom: $spacing-sm; }
+.previewItem { @include flex-between; padding: $spacing-sm 0; gap: $spacing-md; }
+.previewItemName { font-size: $font-size-sm; font-weight: $font-weight-medium; color: $text-primary; }
+.previewItemDesc { font-size: $font-size-xs; color: $text-muted; margin-top: 2px; }
+.previewItemPrice { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $accent; flex-shrink: 0; }
+.previewFooter { font-size: $font-size-xs; color: $text-muted; text-align: center; font-style: italic; padding-top: $spacing-md; border-top: 1px solid $border; }
+
+// Mobile: bottom-sheet modals
+@include mobile {
+  .overlay {
+    padding: $spacing-xs;
+    align-items: flex-end;
+  }
+  .modal, .preview {
+    border-radius: $radius-lg $radius-lg 0 0;
+    max-height: 88vh;
+  }
+  .modalBody { padding: $spacing-md; }
+  .modalFooter { padding: $spacing-sm $spacing-md; }
+}

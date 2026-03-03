@@ -1,0 +1,76 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.page { padding: $spacing-2xl $spacing-xl; animation: fadeIn 0.4s ease; @include mobile { padding: $spacing-md; } }
+.header { @include flex-between; margin-bottom: $spacing-2xl; flex-wrap: wrap; gap: $spacing-md; }
+.title { font-size: $font-size-3xl; font-weight: $font-weight-bold; color: $text-primary; letter-spacing: -0.5px; }
+.subtitle { font-size: $font-size-sm; color: $text-muted; margin-top: 6px; }
+
+.kpiGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: $spacing-md; margin-bottom: $spacing-xl; @include tablet { grid-template-columns: repeat(2, 1fr); } @include mobile { grid-template-columns: 1fr; } }
+.kpiCard { @include card; padding: $spacing-lg; position: relative; overflow: hidden; &::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; } }
+.blue::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.green::before { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.amber::before { background: linear-gradient(90deg, $accent, #fbbf24); }
+.red::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.kpiLabel { font-size: $font-size-xs; color: $text-muted; text-transform: uppercase; letter-spacing: 0.5px; font-weight: $font-weight-medium; }
+.kpiValue { font-size: $font-size-3xl; font-weight: $font-weight-bold; color: $text-primary; letter-spacing: -1px; line-height: 1; margin: $spacing-sm 0 4px; }
+.kpiSub { font-size: $font-size-xs; color: $text-muted; }
+
+.controls { display: flex; align-items: center; gap: $spacing-md; margin-bottom: $spacing-xl; flex-wrap: wrap; }
+.searchWrap { position: relative; flex: 1; max-width: 400px; }
+.searchIcon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: $text-muted; pointer-events: none; }
+.searchInput { width: 100%; background: $bg-secondary; border: 1px solid $border; border-radius: $radius-sm; padding: 9px 12px 9px 36px; font-size: $font-size-sm; color: $text-primary; &::placeholder { color: $text-muted; } &:focus { outline: none; border-color: $border-accent; } }
+.select { background: $bg-secondary; border: 1px solid $border; border-radius: $radius-sm; padding: 9px 12px; font-size: $font-size-sm; color: $text-primary; cursor: pointer; &:focus { outline: none; border-color: $border-accent; } }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: $spacing-md; @include tablet { grid-template-columns: repeat(2, 1fr); } @include mobile { grid-template-columns: 1fr; } }
+.card { @include card; padding: $spacing-lg; display: flex; flex-direction: column; gap: $spacing-md; transition: border-color $transition-smooth; &:hover { border-color: $border-accent; } }
+.cardAlert { border-color: rgba(239,68,68,0.3) !important; &:hover { border-color: rgba(239,68,68,0.5) !important; } }
+.cardTop { @include flex-between; gap: $spacing-sm; }
+.cardName { font-size: $font-size-base; font-weight: $font-weight-semibold; color: $text-primary; }
+.cardCategory { font-size: $font-size-xs; color: $text-muted; margin-top: 4px; }
+
+.cardStats { display: grid; grid-template-columns: repeat(3, 1fr); gap: $spacing-sm; }
+.statItem { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.02); border-radius: $radius-xs; padding: $spacing-sm; }
+.statVal { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $text-primary; }
+.statLbl { font-size: 10px; color: $text-muted; margin-top: 2px; text-align: center; }
+
+.expiration { display: flex; align-items: center; gap: 4px; font-size: $font-size-xs; color: $text-muted; svg { flex-shrink: 0; } }
+.expirationWarn { color: #f87171; }
+
+.supplier { font-size: $font-size-xs; color: $text-muted; }
+
+.cardActions { display: flex; gap: $spacing-sm; padding-top: $spacing-sm; border-top: 1px solid $border; }
+.empty { text-align: center; padding: $spacing-3xl; color: $text-muted; font-size: $font-size-sm; }
+
+.btnPrimary { display: flex; align-items: center; gap: $spacing-sm; padding: 10px $spacing-md; background: $accent; color: #0a0f1e; font-size: $font-size-sm; font-weight: $font-weight-semibold; border: none; border-radius: $radius-sm; cursor: pointer; transition: background $transition-fast; &:hover { background: $accent-hover; } &:disabled { opacity: 0.5; cursor: not-allowed; } }
+.btnEdit { flex: 1; padding: 8px; background: rgba(255,255,255,0.04); border: 1px solid $border; border-radius: $radius-xs; color: $text-secondary; font-size: $font-size-sm; cursor: pointer; &:hover { background: rgba(255,255,255,0.08); } }
+.btnDelete { padding: 8px 12px; background: rgba(239,68,68,0.08); border: none; border-radius: $radius-xs; color: #f87171; font-size: $font-size-sm; cursor: pointer; &:hover { background: rgba(239,68,68,0.15); } }
+.btnCancel { padding: 10px $spacing-md; background: none; border: none; color: $text-muted; font-size: $font-size-sm; cursor: pointer; &:hover { color: $text-primary; } }
+
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; padding: $spacing-md; backdrop-filter: blur(4px); }
+.modal { background: $bg-secondary; border: 1px solid $border; border-radius: $radius-lg; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: $shadow-lg; }
+.modalHeader { @include flex-between; padding: $spacing-lg $spacing-xl; border-bottom: 1px solid $border; position: sticky; top: 0; background: $bg-secondary; z-index: 1; }
+.modalTitle { font-size: $font-size-lg; font-weight: $font-weight-semibold; color: $text-primary; }
+.modalClose { @include flex-center; width: 32px; height: 32px; background: none; border: none; color: $text-muted; border-radius: $radius-xs; cursor: pointer; &:hover { background: rgba(255,255,255,0.06); color: $text-primary; } }
+.modalBody { padding: $spacing-xl; display: flex; flex-direction: column; gap: $spacing-md; }
+.modalFooter { @include flex-between; padding: $spacing-md $spacing-xl; border-top: 1px solid $border; }
+
+.formGrid2 { display: grid; grid-template-columns: 1fr 1fr; gap: $spacing-md; @include mobile { grid-template-columns: 1fr; } }
+.formGrid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: $spacing-md; @include mobile { grid-template-columns: 1fr; } }
+.formGroup { display: flex; flex-direction: column; gap: 6px; }
+.label { font-size: $font-size-xs; font-weight: $font-weight-medium; color: $text-secondary; text-transform: uppercase; letter-spacing: 0.5px; }
+.input { background: $bg-input; border: 1px solid $border; border-radius: $radius-sm; padding: 10px 12px; font-size: $font-size-sm; color: $text-primary; transition: border-color $transition-fast; font-family: inherit; &::placeholder { color: $text-muted; } &:focus { outline: none; border-color: $border-accent; } }
+
+// Mobile: bottom-sheet modals
+@include mobile {
+  .overlay {
+    padding: $spacing-xs;
+    align-items: flex-end;
+  }
+  .modal {
+    border-radius: $radius-lg $radius-lg 0 0;
+    max-height: 88vh;
+  }
+  .modalBody { padding: $spacing-md; }
+  .modalFooter { padding: $spacing-sm $spacing-md; }
+}

@@ -1,0 +1,86 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.button {
+  @include flex-center;
+  gap: $spacing-sm;
+  padding: 11px 20px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  border-radius: $radius-sm;
+  transition: all $transition-base;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.primary {
+  background: linear-gradient(135deg, $accent, #f97316);
+  color: $bg-primary;
+  box-shadow: 0 1px 3px rgba($accent, 0.3);
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 4px 20px rgba($accent, 0.4);
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    filter: brightness(0.95);
+  }
+}
+
+.secondary {
+  background: transparent;
+  color: $text-secondary;
+  border: 1px solid $border;
+
+  &:hover:not(:disabled) {
+    border-color: $text-muted;
+    color: $text-primary;
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.ghost {
+  background: transparent;
+  color: $text-muted;
+
+  &:hover:not(:disabled) {
+    color: $text-primary;
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.loading {
+  pointer-events: none;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
