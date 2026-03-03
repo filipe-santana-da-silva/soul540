@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { connectDB } from '../_lib/db';
-import { Event, Finance } from '../_lib/models';
+import { connectDB } from '../_lib/db.js';
+import { Event, Finance } from '../_lib/models.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   await connectDB();
