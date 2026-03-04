@@ -7,13 +7,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'GET') {
     const cats = await ContractorCategory.find().sort({ name: 1 });
-    return res.json(cats.map((c: { name: string }) => c.name));
+    return res.json(cats.map((c: any) => c.name));
   }
 
   if (req.method === 'POST') {
-    const { name } = req.body;
+    const { name } = req.body as any;
     if (!name?.trim()) return res.status(400).json({ error: 'name required' });
-    const cat = await ContractorCategory.findOneAndUpdate(
+    const cat: any = await ContractorCategory.findOneAndUpdate(
       { name: name.trim() },
       { name: name.trim() },
       { upsert: true, new: true },
@@ -22,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'DELETE') {
-    const { name } = req.body;
+    const { name } = req.body as any;
     await ContractorCategory.deleteOne({ name });
     return res.status(204).end();
   }

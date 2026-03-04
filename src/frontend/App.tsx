@@ -1,7 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { ThemeProvider } from '@frontend/contexts/ThemeContext';
 import { AuthProvider } from '@frontend/contexts/AuthContext';
 import { AppProvider } from '@frontend/contexts/AppContext';
+import { useAuth } from '@frontend/hooks/useAuth';
 import { ROUTES } from '@frontend/routes';
 import Login from '@frontend/pages/Login/Login';
 import Layout from '@frontend/components/Layout/Layout';
@@ -20,6 +21,18 @@ import EstoqueInsumos from '@frontend/pages/EstoqueInsumos/EstoqueInsumos';
 import EstoqueUtensilios from '@frontend/pages/EstoqueUtensilios/EstoqueUtensilios';
 import Chat from '@frontend/pages/Chat/Chat';
 
+function PrivateRoute() {
+  const { authenticated, loading } = useAuth();
+  if (loading) return null;
+  return authenticated ? <Outlet /> : <Navigate to={ROUTES.LOGIN} replace />;
+}
+
+function PublicRoute() {
+  const { authenticated, loading } = useAuth();
+  if (loading) return null;
+  return authenticated ? <Navigate to={ROUTES.DASHBOARD} replace /> : <Outlet />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -27,24 +40,28 @@ export default function App() {
         <AuthProvider>
           <AppProvider>
             <Routes>
-              <Route path={ROUTES.LOGIN} element={<Login />} />
-              <Route element={<Layout />}>
-                <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-                <Route path={ROUTES.FINANCEIRO} element={<Financeiro />} />
-                <Route path={ROUTES.NOTAS_FISCAIS} element={<NotasFiscais />} />
-                <Route path={ROUTES.USUARIO} element={<Usuario />} />
-                <Route path={ROUTES.EVENTOS} element={<Eventos />} />
-                <Route path={ROUTES.TAREFAS} element={<Tarefas />} />
-                <Route path={ROUTES.FUNCIONARIOS} element={<Funcionarios />} />
-                <Route path={ROUTES.CONTRATANTES} element={<Contratantes />} />
-                <Route path={ROUTES.CONTRATOS} element={<Contratos />} />
-                <Route path={ROUTES.FRANQUIAS} element={<Franquias />} />
-                <Route path={ROUTES.CARDAPIOS} element={<Cardapios />} />
-                <Route path={ROUTES.ESTOQUE_INSUMOS} element={<EstoqueInsumos />} />
-                <Route path={ROUTES.ESTOQUE_UTENSILIOS} element={<EstoqueUtensilios />} />
-                <Route path={ROUTES.CHAT} element={<Chat />} />
+              <Route element={<PublicRoute />}>
+                <Route path={ROUTES.LOGIN} element={<Login />} />
               </Route>
-              <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+              <Route element={<PrivateRoute />}>
+                <Route element={<Layout />}>
+                  <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+                  <Route path={ROUTES.FINANCEIRO} element={<Financeiro />} />
+                  <Route path={ROUTES.NOTAS_FISCAIS} element={<NotasFiscais />} />
+                  <Route path={ROUTES.USUARIO} element={<Usuario />} />
+                  <Route path={ROUTES.EVENTOS} element={<Eventos />} />
+                  <Route path={ROUTES.TAREFAS} element={<Tarefas />} />
+                  <Route path={ROUTES.FUNCIONARIOS} element={<Funcionarios />} />
+                  <Route path={ROUTES.CONTRATANTES} element={<Contratantes />} />
+                  <Route path={ROUTES.CONTRATOS} element={<Contratos />} />
+                  <Route path={ROUTES.FRANQUIAS} element={<Franquias />} />
+                  <Route path={ROUTES.CARDAPIOS} element={<Cardapios />} />
+                  <Route path={ROUTES.ESTOQUE_INSUMOS} element={<EstoqueInsumos />} />
+                  <Route path={ROUTES.ESTOQUE_UTENSILIOS} element={<EstoqueUtensilios />} />
+                  <Route path={ROUTES.CHAT} element={<Chat />} />
+                </Route>
+              </Route>
+              <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
             </Routes>
           </AppProvider>
         </AuthProvider>

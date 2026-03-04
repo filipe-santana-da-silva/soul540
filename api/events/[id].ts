@@ -5,11 +5,12 @@ import { Event, Finance } from '../_lib/models.js';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   await connectDB();
   const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
+  if (!id) return res.status(400).end();
 
   if (req.method === 'PUT') {
-    const event = await Event.findByIdAndUpdate(id, req.body, { new: true });
+    const event = await (Event.findByIdAndUpdate(id, req.body as any, { new: true }) as any);
     if (!event) return res.status(404).json({ error: 'Not found' });
-    const existing = await Finance.findOne({ eventId: event.id, autoEventBudget: true });
+    const existing = await (Finance.findOne({ eventId: event.id, autoEventBudget: true }) as any);
     if (event.budget && event.budget > 0) {
       if (existing) {
         await Finance.findByIdAndUpdate(existing._id, {
@@ -19,14 +20,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       } else {
         await Finance.create({
-          eventId: event.id,
-          type: 'revenue',
-          category: 'contrato',
-          description: `Contrato - ${event.name}`,
-          amount: event.budget,
-          date: event.date,
-          status: 'pending',
-          autoEventBudget: true,
+          eventId: event.id, type: 'revenue', category: 'contrato',
+          description: `Contrato - ${event.name}`, amount: event.budget,
+          date: event.date, status: 'pending', autoEventBudget: true,
         });
       }
     } else if (existing) {

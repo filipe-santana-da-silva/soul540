@@ -5,9 +5,10 @@ import { Finance } from '../_lib/models.js';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   await connectDB();
   const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
+  if (!id) return res.status(400).end();
 
   if (req.method === 'PUT') {
-    const finance = await Finance.findByIdAndUpdate(id, req.body, { new: true });
+    const finance = await (Finance.findByIdAndUpdate(id, req.body as any, { new: true }) as any);
     if (!finance) return res.status(404).json({ error: 'Not found' });
     return res.json(finance);
   }
