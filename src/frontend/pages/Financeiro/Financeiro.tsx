@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '@frontend/contexts/AppContext';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -41,7 +41,7 @@ const formatBRL = (v: number) => `R$ ${v.toLocaleString('pt-BR')}`;
 export default function Financeiro() {
   const { events, finances, addFinance, updateFinance, deleteFinance } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('geral');
-  const [selectedMonth, setSelectedMonth] = useState('2026-02');
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date().toISOString().substring(0, 7));
   const [costFilter, setCostFilter] = useState<CostFilter>('all');
 
   // Table filters
@@ -90,6 +90,13 @@ export default function Financeiro() {
     for (const f of finances) set.add(f.date.substring(0, 7));
     return [...set].sort();
   }, [finances]);
+
+  // Auto-select most recent month when finances load
+  useEffect(() => {
+    if (availableMonths.length > 0 && !availableMonths.includes(selectedMonth)) {
+      setSelectedMonth(availableMonths[availableMonths.length - 1]);
+    }
+  }, [availableMonths]);
 
   // Monthly detail data
   const monthFinances = useMemo(

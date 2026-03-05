@@ -39,7 +39,7 @@ export default function GaugeChart({ label, value, max = 100, suffix = '%', colo
           />
         </div>
         <div className={styles.gaugeCenter}>
-          <span className={styles.gaugeValue} style={{ color }}>
+          <span className={styles.gaugeValue}>
             {typeof value === 'number' && !suffix.includes('R$')
               ? value.toFixed(1)
               : value.toLocaleString('pt-BR')}

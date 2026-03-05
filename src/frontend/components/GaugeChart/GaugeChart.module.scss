@@ -82,17 +82,18 @@
 
 .gaugeCenter {
   position: absolute;
-  bottom: 0;
+  bottom: 28%;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  padding-bottom: 4px;
+  z-index: 2;
 }
 
 .gaugeValue {
   font-weight: $font-weight-bold;
   letter-spacing: -0.5px;
   line-height: 1;
+  color: $text-primary;
 }
 
 .gaugeSuffix {
