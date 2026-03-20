@@ -1,8 +1,8 @@
 {
-  "buildCommand": "vite build",
+  "buildCommand": "vite build && npx esbuild api-src/index.ts --bundle --platform=node --format=cjs --outfile=api/index.js --external:mongoose --external:express --external:cors --external:dotenv --external:bcryptjs",
   "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

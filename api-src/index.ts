@@ -2,14 +2,23 @@ import 'dotenv/config';
 import { connectDB } from '../server/db';
 import app from '../server/app';
 
-let dbConnected = false;
+let dbPromise: Promise<void> | null = null;
 
-const handler = async (req: any, res: any) => {
-  if (!dbConnected) {
-    await connectDB();
-    dbConnected = true;
+const getDb = () => {
+  if (!dbPromise) {
+    dbPromise = connectDB().catch((err) => {
+      dbPromise = null;
+      throw err;
+    });
   }
-  app(req, res);
+  return dbPromise;
 };
 
-module.exports = handler;
+module.exports = async (req: any, res: any) => {
+  try {
+    await getDb();
+    app(req, res);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
