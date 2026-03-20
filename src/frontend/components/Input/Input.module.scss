@@ -1,0 +1,88 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.field {
+  @include flex-column;
+  gap: 6px;
+  width: 100%;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background: $bg-input;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 0 $spacing-md;
+  transition: all $transition-base;
+
+  &:focus-within {
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba($accent, 0.1);
+    background: rgba($raw-bg-input, 0.8);
+  }
+
+  &.hasError {
+    border-color: $danger;
+    &:focus-within {
+      box-shadow: 0 0 0 3px rgba($danger, 0.1);
+    }
+  }
+}
+
+.icon {
+  color: $text-muted;
+  flex-shrink: 0;
+  display: flex;
+  font-size: $font-size-lg;
+}
+
+.input {
+  flex: 1;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: $text-primary;
+  font-size: $font-size-sm;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px $bg-input inset;
+    -webkit-text-fill-color: $text-primary;
+  }
+}
+
+.toggle {
+  color: $accent;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: $radius-xs;
+  transition: all $transition-fast;
+
+  &:hover {
+    color: $accent-hover;
+    background: rgba($accent, 0.08);
+  }
+}
+
+.error {
+  font-size: $font-size-xs;
+  color: $danger;
+  font-weight: $font-weight-medium;
+}

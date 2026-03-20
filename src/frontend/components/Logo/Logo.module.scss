@@ -1,0 +1,54 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.logo {
+  @include flex-center;
+  gap: 10px;
+  user-select: none;
+}
+
+.icon {
+  @include flex-center;
+  background: linear-gradient(135deg, $accent, #f97316);
+  color: $bg-primary;
+  font-weight: $font-weight-bold;
+  border-radius: $radius-sm;
+  box-shadow: 0 2px 8px rgba($accent, 0.3);
+}
+
+.text {
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  letter-spacing: -0.5px;
+}
+
+.sm {
+  .icon {
+    width: 32px;
+    height: 32px;
+    font-size: $font-size-sm;
+    border-radius: $radius-xs;
+  }
+  .text { font-size: $font-size-base; }
+}
+
+.md {
+  .icon {
+    width: 40px;
+    height: 40px;
+    font-size: $font-size-xl;
+    border-radius: $radius-sm;
+  }
+  .text { font-size: $font-size-xl; }
+}
+
+.lg {
+  .icon {
+    width: 56px;
+    height: 56px;
+    font-size: $font-size-2xl;
+    border-radius: $radius-md;
+    box-shadow: 0 4px 20px rgba($accent, 0.35);
+  }
+  .text { font-size: $font-size-3xl; }
+}

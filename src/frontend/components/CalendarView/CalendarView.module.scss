@@ -1,0 +1,855 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.wrapper {
+  @include card;
+  overflow: hidden;
+  animation: fadeIn 0.25s ease;
+}
+
+.wrapperDay {
+  animation: slideInDay 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInDay {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+// ── Month header ─────────────────────────────────────────────────────────────
+.header {
+  @include flex-between;
+  padding: $spacing-lg $spacing-lg $spacing-md;
+  border-bottom: 1px solid $border;
+}
+
+.monthTitle {
+  font-family: $font-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  letter-spacing: -0.5px;
+  text-transform: capitalize;
+}
+
+.monthYear {
+  font-family: $font-family;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-normal;
+  color: $text-muted;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.todayBtn {
+  padding: 6px 14px;
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+  background: transparent;
+  color: $text-secondary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+  letter-spacing: 0.2px;
+
+  &:hover {
+    border-color: $accent;
+    color: $accent;
+    background: rgba($accent, 0.06);
+  }
+}
+
+.navBtns {
+  display: flex;
+  gap: 2px;
+}
+
+.navBtn {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: $text-primary;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+// ── Week day headers ──────────────────────────────────────────────────────────
+.weekDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid $border;
+}
+
+.weekDay {
+  padding: $spacing-sm $spacing-xs;
+  text-align: center;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+// ── Month grid ────────────────────────────────────────────────────────────────
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cell {
+  min-height: 88px;
+  padding: 8px 6px 6px;
+  border-right: 1px solid $border-subtle;
+  border-bottom: 1px solid $border-subtle;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:nth-child(7n) { border-right: none; }
+  &:nth-last-child(-n+7) { border-bottom: none; }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.cellOtherMonth {
+  .dayNum { color: rgba($text-muted, 0.3); }
+  .pill   { opacity: 0.4; }
+}
+
+.cellSelected {
+  background: rgba($accent, 0.05) !important;
+}
+
+.dayNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  margin-bottom: 4px;
+  transition: all $transition-fast;
+}
+
+.dayToday {
+  background: $accent;
+  color: $bg-primary;
+  font-weight: $font-weight-bold;
+  box-shadow: 0 0 10px rgba($accent, 0.4);
+}
+
+// ── Pills ─────────────────────────────────────────────────────────────────────
+.pills {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pill {
+  display: block;
+  padding: 2px 6px;
+  border-radius: $radius-xs;
+  font-size: 10px;
+  font-weight: $font-weight-medium;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  transition: filter $transition-fast;
+
+  &:hover { filter: brightness(1.2); }
+}
+
+.pillMore {
+  font-size: 10px;
+  color: $text-muted;
+  font-weight: $font-weight-medium;
+  padding: 1px 6px;
+}
+
+// ── Day view header ────────────────────────────────────────────────────────────
+.dayHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid $border;
+  gap: $spacing-md;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+  background: transparent;
+  color: $text-muted;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text-primary;
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.dayTitle {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-sm;
+  flex: 1;
+  justify-content: center;
+}
+
+.dayTitleWeekday {
+  font-family: $font-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  text-transform: capitalize;
+  letter-spacing: -0.3px;
+}
+
+.dayTitleDate {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  font-weight: $font-weight-normal;
+}
+
+.todayChip {
+  font-size: 10px;
+  font-weight: $font-weight-bold;
+  background: rgba($accent, 0.15);
+  color: $accent;
+  border: 1px solid rgba($accent, 0.25);
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  align-self: center;
+}
+
+.dayNav {
+  display: flex;
+  gap: 2px;
+}
+
+// ── All-day events ─────────────────────────────────────────────────────────────
+.allDayRow {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid $border;
+  min-height: 52px;
+}
+
+.allDayLabel {
+  width: 64px;
+  flex-shrink: 0;
+  padding: $spacing-sm $spacing-sm $spacing-sm $spacing-md;
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-right: 1px solid $border;
+  display: flex;
+  align-items: center;
+}
+
+.allDayEvents {
+  flex: 1;
+  padding: $spacing-sm $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.allDayEmpty {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  font-style: italic;
+  padding: $spacing-xs 0;
+}
+
+.allDayEvent {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: 10px $spacing-md;
+  border-radius: $radius-sm;
+  border: 1px solid transparent;
+  transition: filter $transition-fast;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+
+  &:hover { filter: brightness(1.08); }
+}
+
+.allDayEventBar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 0;
+}
+
+.allDayEventContent {
+  flex: 1;
+  min-width: 0;
+  padding-left: $spacing-xs;
+}
+
+.allDayEventName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  @include text-ellipsis;
+}
+
+.allDayEventMeta {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin-top: 2px;
+}
+
+.allDayEventStatus {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  padding: 2px 10px;
+  border-radius: $radius-full;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+
+// ── Time grid ──────────────────────────────────────────────────────────────────
+.timeGrid {
+  overflow-y: auto;
+  max-height: 420px;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($text-muted, 0.2);
+    border-radius: 2px;
+  }
+}
+
+.hourRow {
+  display: flex;
+  align-items: flex-start;
+  min-height: 52px;
+  border-bottom: 1px solid $border-faint;
+  position: relative;
+
+  &:last-child { border-bottom: none; }
+}
+
+.hourRowNow {
+  .hourLabel { color: $accent; font-weight: $font-weight-semibold; }
+}
+
+.hourLabel {
+  width: 64px;
+  flex-shrink: 0;
+  padding: $spacing-xs $spacing-sm 0 $spacing-md;
+  font-size: 11px;
+  color: $text-muted;
+  letter-spacing: 0.3px;
+  border-right: 1px solid $border;
+  user-select: none;
+}
+
+.hourSlot {
+  flex: 1;
+  position: relative;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.015);
+    cursor: pointer;
+  }
+}
+
+// ── Now indicator ──────────────────────────────────────────────────────────────
+.nowIndicator {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.nowDot {
+  width: 10px;
+  height: 10px;
+  border-radius: $radius-full;
+  background: $accent;
+  flex-shrink: 0;
+  margin-left: -5px;
+  box-shadow: 0 0 6px rgba($accent, 0.6);
+}
+
+.nowLine {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, $accent, rgba($accent, 0.2));
+}
+
+// ── Mobile ────────────────────────────────────────────────────────────────────
+@include mobile {
+  .header {
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+    padding: $spacing-md $spacing-md $spacing-sm;
+  }
+  .monthTitle { font-size: $font-size-xl; }
+  .monthYear  { font-size: $font-size-sm; }
+  .todayBtn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  .cell {
+    min-height: 58px;
+    padding: 5px 3px 3px;
+  }
+  .weekDay {
+    font-size: 9px;
+    padding: $spacing-xs 2px;
+    letter-spacing: 0;
+  }
+  .dayTitleWeekday { font-size: $font-size-xl; }
+  .timeGrid { max-height: 300px; }
+  .allDayRow { min-height: 44px; }
+}
+
+// ── Event Detail Modal ─────────────────────────────────────────────────────────
+.eventOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+  animation: fadeIn 0.18s ease;
+
+  @include mobile {
+    align-items: flex-end;
+    padding: $spacing-xs;
+  }
+}
+
+.eventPanel {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 580px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: $shadow-lg;
+  animation: eventModalIn 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  @include mobile {
+    border-radius: $radius-xl $radius-xl 0 0;
+    max-height: 92vh;
+    animation: eventModalInMobile 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@keyframes eventModalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes eventModalInMobile {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: $spacing-lg;
+  border-bottom: 1px solid $border;
+  border-left: 3px solid transparent;
+  gap: $spacing-md;
+}
+
+.panelHeaderLeft {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panelTitle {
+  font-family: $font-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  padding: 3px 10px;
+  border-radius: $radius-full;
+  border: 1px solid transparent;
+  width: fit-content;
+  letter-spacing: 0.2px;
+}
+
+.closeBtn {
+  @include flex-center;
+  width: 30px;
+  height: 30px;
+  border-radius: $radius-sm;
+  border: none;
+  background: none;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all $transition-fast;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: $text-primary;
+  }
+}
+
+.panelBody {
+  padding: $spacing-xl;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelActions {
+  display: flex;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  border-top: 1px solid $border;
+}
+
+// ── Detail view ───────────────────────────────────────────────────────────────
+.detailSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-xl 0;
+  border-bottom: 1px solid $border;
+
+  &:first-child { padding-top: 0; }
+  &:last-child { border-bottom: none; padding-bottom: 0; }
+}
+
+.detailSectionTitle {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: -$spacing-xs;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-lg $spacing-xl;
+
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detailFull {
+  grid-column: 1 / -1;
+}
+
+.detailLabel {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.detailValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+}
+
+.notesBox {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid $border-subtle;
+  border-radius: $radius-sm;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.menuList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.menuTag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: $radius-full;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  color: $accent;
+  font-size: 11px;
+  font-weight: $font-weight-medium;
+}
+
+.docList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.docTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: $radius-full;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid $border;
+  color: $text-secondary;
+  font-size: 11px;
+
+  svg { color: $text-muted; flex-shrink: 0; }
+}
+
+// ── Action buttons ─────────────────────────────────────────────────────────────
+.btnEdit {
+  flex: 1;
+  padding: 9px $spacing-md;
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+  background: rgba(255, 255, 255, 0.04);
+  color: $text-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.btnWhatsapp {
+  display: flex; align-items: center; gap: $spacing-sm;
+  padding: 9px $spacing-lg;
+  background: rgba(37,211,102,0.08);
+  border: 1px solid rgba(37,211,102,0.25); border-radius: $radius-sm;
+  color: #25d366; font-size: $font-size-sm; font-weight: $font-weight-medium;
+  cursor: pointer; text-decoration: none; transition: all $transition-base;
+  &:hover { background: rgba(37,211,102,0.15); border-color: rgba(37,211,102,0.4); }
+}
+
+.btnDelete {
+  padding: 9px $spacing-lg;
+  border-radius: $radius-sm;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.06);
+  color: #f87171;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+}
+
+.btnSave {
+  flex: 1;
+  padding: 9px $spacing-md;
+  border-radius: $radius-sm;
+  border: none;
+  background: $accent;
+  color: $bg-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover { background: $accent-hover; }
+}
+
+.btnCancel {
+  padding: 9px $spacing-lg;
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+  background: none;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: $text-primary;
+  }
+}
+
+.btnDeleteConfirm {
+  flex: 1;
+  padding: 9px $spacing-md;
+  border-radius: $radius-sm;
+  border: none;
+  background: $danger;
+  color: #fff;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover { filter: brightness(1.1); }
+}
+
+// ── Edit form ─────────────────────────────────────────────────────────────────
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+  padding: 9px $spacing-md;
+  background: $bg-input;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  font-family: $font-family;
+  transition: all $transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+  }
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+// ── Delete confirm ─────────────────────────────────────────────────────────────
+.deleteConfirmBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  text-align: center;
+  padding: $spacing-md 0;
+}
+
+.deleteWarningIcon {
+  @include flex-center;
+  width: 56px;
+  height: 56px;
+  border-radius: $radius-full;
+  background: rgba(239, 68, 68, 0.1);
+  color: $danger;
+}
+
+.deleteConfirmTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  margin: 0;
+}
+
+.deleteConfirmText {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  line-height: 1.5;
+  margin: 0;
+
+  strong { color: $text-secondary; }
+}
