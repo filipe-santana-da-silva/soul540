@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "server": "tsx watch server/index.ts",
     "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
-    "seed": "tsx server/seed.ts"
+    "seed": "tsx server/seed.ts",
+    "seed:units": "tsx server/seed-units.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
