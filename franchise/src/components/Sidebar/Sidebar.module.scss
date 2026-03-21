@@ -1,0 +1,263 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, var(--sidebar-gradient-top) 0%, $bg-secondary 100%);
+  border-right: 1px solid $border;
+  @include flex-column;
+  z-index: 100;
+
+  // Subtle amber atmospheric glow at top
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    background: radial-gradient(ellipse at 50% 0%, rgba($accent, 0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  @include mobile {
+    width: 100%;
+    height: auto;
+    bottom: 0;
+    top: auto;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid $border;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 100;
+    // Frosted glass effect for bottom nav
+    background: linear-gradient(180deg, var(--sidebar-gradient-top) 0%, $bg-secondary 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    &::before { display: none; }
+  }
+}
+
+.logo {
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: $spacing-sm;
+}
+.logoText {
+  font-family: $font-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: var(--text-primary);
+  display: block;
+}
+.logoTag {
+  font-size: $font-size-xs;
+  color: $accent;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: $font-weight-semibold;
+}
+
+.nav {
+  flex: 1;
+  padding: $spacing-md $spacing-sm 0;
+  @include flex-column;
+  overflow-y: auto;
+  gap: 0;
+
+  &::-webkit-scrollbar { width: 0; }
+
+  @include mobile {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: $spacing-xs;
+    overflow-y: visible;
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+}
+
+.navGroup {
+  margin-bottom: $spacing-xs;
+
+  @include mobile {
+    display: contents;
+  }
+}
+
+.navGroupLabel {
+  display: block;
+  font-size: 9px;
+  font-weight: $font-weight-semibold;
+  color: rgba($text-muted, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: $spacing-md $spacing-md $spacing-xs;
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.navItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px $spacing-md;
+  border-radius: $radius-sm;
+  color: rgba($text-muted, 0.85);
+  font-size: 13px;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  letter-spacing: 0.1px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: $text-primary;
+
+    .navIcon {
+      color: $text-secondary;
+    }
+  }
+
+  @include mobile {
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px $spacing-xs;
+    font-size: $font-size-xs;
+    text-align: center;
+    width: auto;
+    min-width: 52px;
+    border-radius: $radius-xs;
+    flex-shrink: 0;
+  }
+}
+
+.navItemActive {
+  background: rgba($accent, 0.1);
+  color: $accent;
+
+  .navIcon {
+    color: $accent;
+  }
+
+  &:hover {
+    background: rgba($accent, 0.13);
+    color: $accent;
+
+    .navIcon {
+      color: $accent;
+    }
+  }
+}
+
+.activeIndicator {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 18px;
+  background: linear-gradient(180deg, #f59e0b, #f97316);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px rgba($accent, 0.5);
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.navIcon {
+  @include flex-center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  transition: color $transition-fast;
+  opacity: 0.9;
+}
+
+.navLabel {
+  line-height: 1;
+
+  @include mobile {
+    font-size: 10px;
+  }
+}
+
+.footer {
+  padding: $spacing-md;
+  border-top: 1px solid $border-subtle;
+  flex-shrink: 0;
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.avatar {
+  @include flex-center;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius-full;
+  background: linear-gradient(135deg, $accent, #f97316);
+  color: $bg-primary;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-sm;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba($accent, 0.3);
+}
+
+.userDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 13px;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  @include text-ellipsis;
+}
+
+.userRole {
+  font-size: 11px;
+  color: $text-muted;
+  text-transform: capitalize;
+  margin-top: 1px;
+}
+
+.logoutBtn {
+  @include flex-center;
+  width: 30px;
+  height: 30px;
+  border-radius: $radius-sm;
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all $transition-fast;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba($danger, 0.1);
+    color: $danger;
+  }
+}
