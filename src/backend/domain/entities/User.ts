@@ -5,4 +5,5 @@ export interface User {
   role: 'admin' | 'manager' | 'staff';
   isAdmin: boolean;
   permissions: string[];
+  unit: 'main' | 'franchise' | 'factory';
 }
