@@ -1,0 +1,15 @@
+@use '../../styles/variables' as *;
+
+.page { padding: $spacing-xl; }
+.header { margin-bottom: $spacing-xl; }
+.dateLabel { font-size: $font-size-sm; color: var(--text-secondary); text-transform: capitalize; margin-bottom: $spacing-xs; }
+.title { font-family: $font-display; font-size: $font-size-3xl; font-weight: $font-weight-semibold; margin-bottom: $spacing-xs; }
+.subtitle { font-size: $font-size-sm; color: var(--text-secondary); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: $spacing-md; margin-top: $spacing-xl; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: $radius-md; padding: $spacing-lg; }
+.cardLabel { font-size: $font-size-sm; color: var(--text-secondary); margin-bottom: $spacing-sm; }
+.cardValue { font-size: $font-size-2xl; font-weight: $font-weight-bold; }
+.amber .cardValue { color: $accent; }
+.blue .cardValue { color: $info; }
+.green .cardValue { color: $success; }
+.red .cardValue { color: $danger; }
