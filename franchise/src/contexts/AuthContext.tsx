@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { apiFetch } from '@/lib/api';
+import { Storage } from '@/lib/storage';
 
-interface User { name: string; email: string; role: string; }
+interface User { id: string; name: string; email: string; isAdmin: boolean; permissions: string[]; unit: string; }
 interface AuthCtx {
   user: User | null;
   loading: boolean;
@@ -11,32 +13,33 @@ interface AuthCtx {
 
 const AuthContext = createContext<AuthCtx>({} as AuthCtx);
 
-const MOCK_USER: User = { name: 'Admin Franquia', email: 'franquia@soul540.com', role: 'franqueado' };
-const MOCK_EMAIL = 'franquia@soul540.com';
-const MOCK_PASSWORD = 'franquia123';
-const STORAGE_KEY = 'franchise_user';
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) setUser(JSON.parse(stored));
+    const stored = Storage.getUser<User>();
+    if (stored) setUser(stored);
     setLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
-    if (email === MOCK_EMAIL && password === MOCK_PASSWORD) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(MOCK_USER));
-      setUser(MOCK_USER);
-    } else {
-      throw new Error('Email ou senha incorretos');
+    const res = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Email ou senha incorretos');
     }
+    const data = await res.json();
+    Storage.setToken(data.token);
+    Storage.setUser(data.user);
+    setUser(data.user);
   };
 
   const logout = () => {
-    localStorage.removeItem(STORAGE_KEY);
+    Storage.clear();
     setUser(null);
   };
 
