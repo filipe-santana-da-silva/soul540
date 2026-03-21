@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { AppProvider } from '@/contexts/AppContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ROUTES } from '@/routes';
 import Login from '@/pages/Login/Login';
 import Layout from '@/components/Layout/Layout';
@@ -28,6 +29,7 @@ function PublicRoute() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ThemeProvider>
       <AuthProvider>
         <AppProvider>
         <Routes>
@@ -50,6 +52,7 @@ export default function App() {
         </Routes>
         </AppProvider>
       </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

@@ -1,10 +1,12 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import styles from './MinhaConta.module.scss';
 
 export default function MinhaConta() {
   const { user } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
 
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState('');
@@ -63,6 +65,20 @@ export default function MinhaConta() {
           <button type="submit" className={styles.btnSave}>Salvar Alterações</button>
         </div>
       </form>
+
+      <div className={styles.formSection}>
+        <h3 className={styles.formSectionTitle}>Aparência</h3>
+        <div className={styles.settingRow}>
+          <div className={styles.settingInfo}>
+            <span className={styles.settingLabel}>Modo Claro</span>
+            <span className={styles.settingDesc}>Alterna entre tema escuro e claro</span>
+          </div>
+          <label className={styles.toggle}>
+            <input type="checkbox" checked={!isDark} onChange={toggleTheme} />
+            <span className={styles.toggleSlider} />
+          </label>
+        </div>
+      </div>
     </div>
   );
 }
