@@ -27,7 +27,7 @@ const statusConfig: Record<Supply['status'], { label: string; color: 'green' | '
 type FormData = {
   name: string;
   category: string;
-  unit: string;
+  measureUnit: string;
   quantity: string;
   minStock: string;
   costPerUnit: string;
@@ -37,7 +37,7 @@ type FormData = {
 };
 
 const emptyForm: FormData = {
-  name: '', category: '', unit: 'kg', quantity: '', minStock: '', costPerUnit: '', supplier: '', expirationDate: '', status: 'em_estoque',
+  name: '', category: '', measureUnit: 'kg', quantity: '', minStock: '', costPerUnit: '', supplier: '', expirationDate: '', status: 'em_estoque',
 };
 
 function calcStatus(qty: number, min: number, expDate?: string): Supply['status'] {
@@ -88,7 +88,7 @@ export default function EstoqueInsumos() {
 
   const openCreate = () => { setForm(emptyForm); setEditingId(null); setShowModal(true); };
   const openEdit = (s: Supply) => {
-    setForm({ name: s.name, category: s.category, unit: s.unit, quantity: String(s.quantity), minStock: String(s.minStock), costPerUnit: s.costPerUnit ? formatCurrency(String(Math.round(s.costPerUnit * 100))) : '', supplier: s.supplier, expirationDate: s.expirationDate || '', status: s.status });
+    setForm({ name: s.name, category: s.category, measureUnit: s.measureUnit, quantity: String(s.quantity), minStock: String(s.minStock), costPerUnit: s.costPerUnit ? formatCurrency(String(Math.round(s.costPerUnit * 100))) : '', supplier: s.supplier, expirationDate: s.expirationDate || '', status: s.status });
     setEditingId(s.id);
     setShowModal(true);
   };
@@ -100,7 +100,7 @@ export default function EstoqueInsumos() {
     const min = Number(form.minStock) || 0;
     const status = calcStatus(qty, min, form.expirationDate || undefined);
     const data = {
-      name: form.name, category: form.category, unit: form.unit, quantity: qty, minStock: min,
+      name: form.name, category: form.category, measureUnit: form.measureUnit, quantity: qty, minStock: min,
       costPerUnit: parseCurrency(form.costPerUnit), supplier: form.supplier,
       expirationDate: form.expirationDate || undefined, status,
     };
@@ -231,16 +231,16 @@ export default function EstoqueInsumos() {
               </div>
               <div className={styles.cardStats}>
                 <div className={styles.statItem}>
-                  <span className={styles.statVal}>{s.quantity} {s.unit}</span>
+                  <span className={styles.statVal}>{s.quantity} {s.measureUnit}</span>
                   <span className={styles.statLbl}>Quantidade</span>
                 </div>
                 <div className={styles.statItem}>
-                  <span className={styles.statVal}>{s.minStock} {s.unit}</span>
+                  <span className={styles.statVal}>{s.minStock} {s.measureUnit}</span>
                   <span className={styles.statLbl}>Estoque Min.</span>
                 </div>
                 <div className={styles.statItem}>
                   <span className={styles.statVal}>R$ {s.costPerUnit.toFixed(2)}</span>
-                  <span className={styles.statLbl}>Custo/{s.unit}</span>
+                  <span className={styles.statLbl}>Custo/{s.measureUnit}</span>
                 </div>
               </div>
               {s.expirationDate && (
@@ -294,7 +294,7 @@ export default function EstoqueInsumos() {
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Unidade</label>
-                  <select className={styles.input} value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })}>
+                  <select className={styles.input} value={form.measureUnit} onChange={(e) => setForm({ ...form, measureUnit: e.target.value })}>
                     <option value="kg">kg</option>
                     <option value="g">g</option>
                     <option value="L">L</option>
@@ -381,11 +381,11 @@ export default function EstoqueInsumos() {
                 </div>
                 <div className={styles.viewField}>
                   <span className={styles.viewLabel}>Quantidade</span>
-                  <span className={styles.viewValue}>{viewingItem.quantity} {viewingItem.unit}</span>
+                  <span className={styles.viewValue}>{viewingItem.quantity} {viewingItem.measureUnit}</span>
                 </div>
                 <div className={styles.viewField}>
                   <span className={styles.viewLabel}>Estoque Mínimo</span>
-                  <span className={styles.viewValue}>{viewingItem.minStock} {viewingItem.unit}</span>
+                  <span className={styles.viewValue}>{viewingItem.minStock} {viewingItem.measureUnit}</span>
                 </div>
                 <div className={styles.viewField}>
                   <span className={styles.viewLabel}>Custo por Unidade</span>
