@@ -10,7 +10,6 @@ import Contratantes from '@/pages/Contratantes/Contratantes';
 import Eventos from '@/pages/Eventos/Eventos';
 import EstoqueInsumos from '@/pages/EstoqueInsumos/EstoqueInsumos';
 import EstoqueUtensilios from '@/pages/EstoqueUtensilios/EstoqueUtensilios';
-import Cardapios from '@/pages/Cardapios/Cardapios';
 import Permissoes from '@/pages/Permissoes/Permissoes';
 import Financeiro from '@/pages/Financeiro/Financeiro';
 
@@ -43,7 +42,6 @@ export default function App() {
               <Route path={ROUTES.EVENTOS} element={<Eventos />} />
               <Route path={ROUTES.ESTOQUE_INSUMOS} element={<EstoqueInsumos />} />
               <Route path={ROUTES.ESTOQUE_UTENSILIOS} element={<EstoqueUtensilios />} />
-              <Route path={ROUTES.CARDAPIOS} element={<Cardapios />} />
               <Route path={ROUTES.PERMISSOES} element={<Permissoes />} />
               <Route path={ROUTES.FINANCEIRO} element={<Financeiro />} />
             </Route>
