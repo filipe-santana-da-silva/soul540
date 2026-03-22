@@ -1,6 +1,20 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import type { Supply } from '@backend/infra/data/mockData';
 import Badge from '@frontend/components/Badge/Badge';
+
+type Supply = {
+  id: string;
+  name: string;
+  category: string;
+  measureUnit: string;
+  quantity: number;
+  minStock: number;
+  costPerUnit: number;
+  supplier: string;
+  expirationDate?: string;
+  status: 'em_estoque' | 'estoque_baixo' | 'sem_estoque' | 'vencido';
+  unit?: string;
+  createdAt?: string;
+};
 import styles from './EstoqueInsumos.module.scss';
 import ConfirmModal from '@frontend/components/ConfirmModal/ConfirmModal';
 
@@ -408,7 +422,7 @@ export default function EstoqueInsumos() {
                 </div>
                 <div className={styles.viewField}>
                   <span className={styles.viewLabel}>Cadastrado em</span>
-                  <span className={styles.viewValue}>{new Date(viewingItem.createdAt).toLocaleDateString('pt-BR')}</span>
+                  <span className={styles.viewValue}>{viewingItem.createdAt ? new Date(viewingItem.createdAt).toLocaleDateString('pt-BR') : '-'}</span>
                 </div>
               </div>
             </div>

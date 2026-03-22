@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  if (req.user?.unit === 'factory') return res.status(403).json({ error: 'Forbidden' });
+  if ((req as any).user?.unit === 'factory') return res.status(403).json({ error: 'Forbidden' });
   const resolvedUnit = getTenantUnit(req);
   const bodyUnit = req.body.unit;
   const unit = (bodyUnit === 'franchise' || bodyUnit === 'factory') ? bodyUnit : resolvedUnit;
@@ -66,7 +66,7 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  if (req.user?.unit === 'factory') return res.status(403).json({ error: 'Forbidden' });
+  if ((req as any).user?.unit === 'factory') return res.status(403).json({ error: 'Forbidden' });
   const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
   if (!event) return res.status(404).json({ error: 'Not found' });
   const existing = await Finance.findOne({ eventId: event.id, autoEventBudget: true });
@@ -97,7 +97,7 @@ router.put('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  if (req.user?.unit === 'factory') return res.status(403).json({ error: 'Forbidden' });
+  if ((req as any).user?.unit === 'factory') return res.status(403).json({ error: 'Forbidden' });
   await Event.findByIdAndDelete(req.params.id);
   await Finance.deleteMany({ eventId: req.params.id, autoEventBudget: true });
   res.status(204).end();
