@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import mongoose, { Schema } from 'mongoose';
-import { getTenantFilter, getTenantUnit } from '../middleware/tenant';
+import { getTenantUnit } from '../middleware/tenant';
 
 const MenuItemSchema = new Schema({
   id: String,
@@ -21,32 +21,72 @@ const MenuSchema = new Schema({
   headerText: { type: String, default: '' },
   footerText: { type: String, default: '' },
   categories: [MenuCategorySchema],
-  unit: { type: String, default: 'main' },
+  source: { type: String, default: 'main' },
   createdAt: { type: String, default: () => new Date().toISOString() },
-}, { toJSON: { virtuals: true, versionKey: false } });
+}, { collection: 'menus', toJSON: { virtuals: true, versionKey: false } });
+
+const FranchiseMenuSchema = new Schema({
+  name: String,
+  eventId: { type: String, default: '' },
+  headerText: { type: String, default: '' },
+  footerText: { type: String, default: '' },
+  categories: [MenuCategorySchema],
+  source: { type: String, default: 'franchise' },
+  createdAt: { type: String, default: () => new Date().toISOString() },
+}, { collection: 'franchisemenus', toJSON: { virtuals: true, versionKey: false } });
 
 const Menu = mongoose.models.Menu || mongoose.model('Menu', MenuSchema);
+const FranchiseMenu = mongoose.models.FranchiseMenu || mongoose.model('FranchiseMenu', FranchiseMenuSchema);
+
+function isFromFranchise(req: any): boolean {
+  return getTenantUnit(req) === 'franchise';
+}
+
+async function findInBothCollections(id: string) {
+  const doc = await Menu.findById(id);
+  if (doc) return { doc, model: Menu };
+  const fdoc = await FranchiseMenu.findById(id);
+  if (fdoc) return { doc: fdoc, model: FranchiseMenu };
+  return null;
+}
 
 const router = Router();
 
 router.get('/', async (req, res) => {
-  const menus = await Menu.find(getTenantFilter(req)).sort({ createdAt: -1 });
-  res.json(menus);
+  if (isFromFranchise(req)) {
+    const menus = await FranchiseMenu.find({}).sort({ createdAt: -1 });
+    return res.json(menus);
+  }
+  const [main, franchise] = await Promise.all([
+    Menu.find({}).sort({ createdAt: -1 }),
+    FranchiseMenu.find({}).sort({ createdAt: -1 }),
+  ]);
+  const merged = [...main, ...franchise].sort((a, b) =>
+    (a.createdAt ?? '') < (b.createdAt ?? '') ? 1 : -1,
+  );
+  res.json(merged);
 });
 
 router.post('/', async (req, res) => {
-  const menu = await Menu.create({ ...req.body, unit: getTenantUnit(req) });
+  if (isFromFranchise(req)) {
+    const menu = await FranchiseMenu.create({ ...req.body, source: 'franchise' });
+    return res.status(201).json(menu);
+  }
+  const menu = await Menu.create({ ...req.body, source: 'main' });
   res.status(201).json(menu);
 });
 
 router.put('/:id', async (req, res) => {
-  const menu = await Menu.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  if (!menu) return res.status(404).json({ error: 'Not found' });
+  const found = await findInBothCollections(req.params.id);
+  if (!found) return res.status(404).json({ error: 'Not found' });
+  const menu = await found.model.findByIdAndUpdate(req.params.id, req.body, { new: true });
   res.json(menu);
 });
 
 router.delete('/:id', async (req, res) => {
-  await Menu.findByIdAndDelete(req.params.id);
+  const found = await findInBothCollections(req.params.id);
+  if (!found) return res.status(404).json({ error: 'Not found' });
+  await found.model.findByIdAndDelete(req.params.id);
   res.status(204).end();
 });
 

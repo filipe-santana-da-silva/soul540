@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import mongoose, { Schema } from 'mongoose';
-import { getTenantFilter, getTenantUnit } from '../middleware/tenant';
+import { getTenantUnit } from '../middleware/tenant';
 
 const ContractorSchema = new Schema({
   name: String,
@@ -15,32 +15,81 @@ const ContractorSchema = new Schema({
   category: String,
   status: { type: String, default: 'ativo' },
   totalRevenue: { type: Number, default: 0 },
-  unit: { type: String, default: 'main' },
+  source: { type: String, default: 'main' },
   createdAt: { type: String, default: () => new Date().toISOString() },
-}, { toJSON: { virtuals: true, versionKey: false } });
+}, { collection: 'contractors', toJSON: { virtuals: true, versionKey: false } });
+
+const FranchiseContractorSchema = new Schema({
+  name: String,
+  type: { type: String, default: 'pessoa_fisica' },
+  document: { type: String, default: '' },
+  documentType: String,
+  email: { type: String, default: '' },
+  phone: { type: String, default: '' },
+  address: String,
+  maritalStatus: String,
+  profession: String,
+  category: String,
+  status: { type: String, default: 'ativo' },
+  totalRevenue: { type: Number, default: 0 },
+  source: { type: String, default: 'franchise' },
+  createdAt: { type: String, default: () => new Date().toISOString() },
+}, { collection: 'franchisecontractors', toJSON: { virtuals: true, versionKey: false } });
 
 const Contractor = mongoose.models.Contractor || mongoose.model('Contractor', ContractorSchema);
+const FranchiseContractor = mongoose.models.FranchiseContractor || mongoose.model('FranchiseContractor', FranchiseContractorSchema);
+
+function isFromFranchise(req: any): boolean {
+  return getTenantUnit(req) === 'franchise';
+}
+
+async function findInBothCollections(id: string) {
+  const doc = await Contractor.findById(id);
+  if (doc) return { doc, model: Contractor };
+  const fdoc = await FranchiseContractor.findById(id);
+  if (fdoc) return { doc: fdoc, model: FranchiseContractor };
+  return null;
+}
 
 const router = Router();
 
 router.get('/', async (req, res) => {
-  const contractors = await Contractor.find(getTenantFilter(req)).sort({ name: 1 });
-  res.json(contractors);
+  if (isFromFranchise(req)) {
+    const contractors = await FranchiseContractor.find({}).sort({ name: 1 });
+    return res.json(contractors);
+  }
+  const [main, franchise] = await Promise.all([
+    Contractor.find({}).sort({ name: 1 }),
+    FranchiseContractor.find({}).sort({ name: 1 }),
+  ]);
+  const merged = [...main, ...franchise].sort((a, b) => {
+    const na = a.name ?? '';
+    const nb = b.name ?? '';
+    return na < nb ? -1 : na > nb ? 1 : 0;
+  });
+  res.json(merged);
 });
 
 router.post('/', async (req, res) => {
-  const contractor = await Contractor.create({ ...req.body, unit: getTenantUnit(req) });
+  if (isFromFranchise(req)) {
+    const contractor = await FranchiseContractor.create({ ...req.body, source: 'franchise' });
+    return res.status(201).json(contractor);
+  }
+  const contractor = await Contractor.create({ ...req.body, source: 'main' });
   res.status(201).json(contractor);
 });
 
 router.put('/:id', async (req, res) => {
-  const contractor = await Contractor.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  if (!contractor) return res.status(404).json({ error: 'Not found' });
+  const found = await findInBothCollections(req.params.id);
+  if (!found) return res.status(404).json({ error: 'Not found' });
+  const contractor = await found.model.findByIdAndUpdate(req.params.id, req.body, { new: true });
   res.json(contractor);
 });
 
 router.delete('/:id', async (req, res) => {
-  await Contractor.findByIdAndDelete(req.params.id);
+  const found = await findInBothCollections(req.params.id);
+  if (!found) return res.status(404).json({ error: 'Not found' });
+  await found.model.findByIdAndDelete(req.params.id);
   res.status(204).end();
 });
 
