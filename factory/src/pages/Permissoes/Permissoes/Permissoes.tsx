@@ -11,26 +11,19 @@ type AppUser = {
 };
 
 const ALL_PAGES = [
-  { group: 'Principal', items: [{ key: 'dashboard', label: 'Dashboard' }] },
   { group: 'Gestão', items: [
     { key: 'eventos', label: 'Eventos' },
-    { key: 'tarefas', label: 'Tarefas' },
     { key: 'funcionarios', label: 'Funcionários' },
     { key: 'contratantes', label: 'Contratantes' },
   ]},
   { group: 'Financeiro', items: [
     { key: 'financeiro', label: 'Financeiro' },
-    { key: 'notas-fiscais', label: 'Notas Fiscais' },
-    { key: 'contratos', label: 'Contratos' },
   ]},
   { group: 'Operações', items: [
-    { key: 'cardapios', label: 'Cardápios' },
     { key: 'estoque-insumos', label: 'Est. Insumos' },
     { key: 'estoque-utensilios', label: 'Est. Utensílios' },
   ]},
-  { group: 'Expansão', items: [{ key: 'franquias', label: 'Franquias' }] },
   { group: 'Sistema', items: [
-    { key: 'chat', label: 'Chat IA' },
     { key: 'usuario', label: 'Minha Conta' },
   ]},
 ];
