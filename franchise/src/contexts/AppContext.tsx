@@ -58,6 +58,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addEvent = useCallback(async (data: Omit<PizzaEvent, 'id' | 'createdAt'>) => {
     const res = await apiFetch('/api/events', { method: 'POST', body: JSON.stringify(data) });
+    if (!res.ok) throw new Error(`Erro ao criar evento: ${res.status}`);
     const created: PizzaEvent = await res.json();
     setEvents((prev) => [...prev, created]);
     refreshFinances();
@@ -66,6 +67,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateEvent = useCallback(async (id: string, data: Partial<PizzaEvent>) => {
     const res = await apiFetch(`/api/events/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+    if (!res.ok) throw new Error(`Erro ao atualizar evento: ${res.status}`);
     const updated: PizzaEvent = await res.json();
     setEvents((prev) => prev.map((e) => (e.id === id ? updated : e)));
     refreshFinances();

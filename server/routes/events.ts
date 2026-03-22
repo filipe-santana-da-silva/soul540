@@ -82,7 +82,10 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  if (getTenantUnit(req) === 'factory') return res.status(403).json({ error: 'Forbidden' });
+  const xSystem = (req.headers['x-system'] as string) || '';
+  const userUnit = (req as any).user?.unit;
+  const isFactory = xSystem === 'factory' || (!xSystem && userUnit === 'factory');
+  if (isFactory) return res.status(403).json({ error: 'Forbidden' });
   if (isFromFranchise(req)) {
     const event = await FranchiseEvent.create({ ...req.body, source: 'franchise' });
     if (event.budget && event.budget > 0) {
@@ -118,7 +121,10 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  if (getTenantUnit(req) === 'factory') return res.status(403).json({ error: 'Forbidden' });
+  const xSystem = (req.headers['x-system'] as string) || '';
+  const userUnit = (req as any).user?.unit;
+  const isFactory = xSystem === 'factory' || (!xSystem && userUnit === 'factory');
+  if (isFactory) return res.status(403).json({ error: 'Forbidden' });
   const found = await findEventInBothCollections(req.params.id);
   if (!found) return res.status(404).json({ error: 'Not found' });
   const event = await found.model.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -153,7 +159,10 @@ router.put('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  if (getTenantUnit(req) === 'factory') return res.status(403).json({ error: 'Forbidden' });
+  const xSystem = (req.headers['x-system'] as string) || '';
+  const userUnit = (req as any).user?.unit;
+  const isFactory = xSystem === 'factory' || (!xSystem && userUnit === 'factory');
+  if (isFactory) return res.status(403).json({ error: 'Forbidden' });
   const found = await findEventInBothCollections(req.params.id);
   if (!found) return res.status(204).end();
   await found.model.findByIdAndDelete(req.params.id);

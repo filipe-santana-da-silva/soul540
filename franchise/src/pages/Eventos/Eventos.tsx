@@ -270,12 +270,16 @@ const [showModal, setShowModal] = useState(false);
       contractPdfName: form.contractPdfName || undefined,
       createdBy: form.createdBy || undefined,
     };
-    if (editingId) {
-      await updateEvent(editingId, data);
-    } else {
-      await addEvent(data);
+    try {
+      if (editingId) {
+        await updateEvent(editingId, data);
+      } else {
+        await addEvent(data);
+      }
+      closeModal();
+    } catch (err) {
+      console.error('Erro ao salvar evento:', err);
     }
-    closeModal();
   };
 
   const handleDelete = (id: string) => { setDeleteTargetId(id); };
