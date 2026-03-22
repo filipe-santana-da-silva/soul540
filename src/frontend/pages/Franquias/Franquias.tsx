@@ -153,7 +153,7 @@ function PortalCard({ system, defaultUrl }: { system: PortalSystem; defaultUrl: 
               className={styles.urlInput}
               value={urlDraft}
               onChange={(e) => setUrlDraft(e.target.value)}
-              placeholder="http://localhost:5174"
+              placeholder="https://meu-portal.up.railway.app"
               onKeyDown={(e) => { if (e.key === 'Enter') saveUrl(); if (e.key === 'Escape') setEditingUrl(false); }}
               autoFocus
             />
@@ -307,8 +307,8 @@ export default function Franquias() {
       {/* Portais Conectados */}
       <div className={styles.sectionLabel}>Portais Conectados</div>
       <div className={styles.portalsGrid}>
-        <PortalCard system="franchise" defaultUrl="http://localhost:5174" />
-        <PortalCard system="factory" defaultUrl="http://localhost:5175" />
+        <PortalCard system="franchise" defaultUrl={import.meta.env.VITE_FRANCHISE_URL || 'http://localhost:5174'} />
+        <PortalCard system="factory" defaultUrl={import.meta.env.VITE_FACTORY_URL || 'http://localhost:5175'} />
       </div>
 
       <div className={styles.sectionLabel}>Unidades Franqueadas</div>
