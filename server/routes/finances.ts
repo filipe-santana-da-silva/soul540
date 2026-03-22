@@ -50,16 +50,9 @@ async function findFinanceInBothCollections(id: string) {
 const router = Router();
 
 router.get('/', async (req, res) => {
-  if (isFromFranchise(req)) {
-    const finances = await FranchiseFinance.find({}).sort({ date: -1 });
-    return res.json(finances);
-  }
-  const [main, franchise] = await Promise.all([
-    Finance.find({}).sort({ date: -1 }),
-    FranchiseFinance.find({}).sort({ date: -1 }),
-  ]);
-  const merged = [...main, ...franchise].sort((a, b) => (a.date < b.date ? 1 : -1));
-  res.json(merged);
+  const Model = isFromFranchise(req) ? FranchiseFinance : Finance;
+  const items = await Model.find({});
+  res.json(items);
 });
 
 router.post('/', async (req, res) => {

@@ -44,15 +44,9 @@ async function findInBothCollections(id: string) {
 const router = Router();
 
 router.get('/', async (req, res) => {
-  if (isFromFranchise(req)) {
-    const tasks = await FranchiseTask.find({});
-    return res.json(tasks);
-  }
-  const [main, franchise] = await Promise.all([
-    Task.find({}),
-    FranchiseTask.find({}),
-  ]);
-  res.json([...main, ...franchise]);
+  const Model = isFromFranchise(req) ? FranchiseTask : Task;
+  const items = await Model.find({});
+  res.json(items);
 });
 
 router.post('/', async (req, res) => {

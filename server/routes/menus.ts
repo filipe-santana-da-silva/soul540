@@ -53,18 +53,9 @@ async function findInBothCollections(id: string) {
 const router = Router();
 
 router.get('/', async (req, res) => {
-  if (isFromFranchise(req)) {
-    const menus = await FranchiseMenu.find({}).sort({ createdAt: -1 });
-    return res.json(menus);
-  }
-  const [main, franchise] = await Promise.all([
-    Menu.find({}).sort({ createdAt: -1 }),
-    FranchiseMenu.find({}).sort({ createdAt: -1 }),
-  ]);
-  const merged = [...main, ...franchise].sort((a, b) =>
-    (a.createdAt ?? '') < (b.createdAt ?? '') ? 1 : -1,
-  );
-  res.json(merged);
+  const Model = isFromFranchise(req) ? FranchiseMenu : Menu;
+  const items = await Model.find({});
+  res.json(items);
 });
 
 router.post('/', async (req, res) => {
