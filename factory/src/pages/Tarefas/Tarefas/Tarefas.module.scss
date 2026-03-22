@@ -1,0 +1,481 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.page {
+  padding: $spacing-2xl $spacing-xl;
+  animation: fadeIn 0.4s ease;
+
+  @include mobile { padding: $spacing-md; }
+}
+
+.header {
+  @include flex-between;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin-top: 6px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.viewToggle {
+  display: flex;
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 4px;
+}
+
+.viewBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: $radius-xs;
+  background: none;
+  color: $text-muted;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover { color: $text-primary; }
+}
+
+.viewBtnActive {
+  background: $accent;
+  color: #0a0f1e;
+}
+
+.stats {
+  display: flex;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statVal {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+}
+
+.statLbl {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statDanger .statVal { color: #f87171; }
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 9px 12px 9px 36px;
+  font-size: $font-size-sm;
+  color: $text-primary;
+
+  &::placeholder { color: $text-muted; }
+  &:focus { outline: none; border-color: $border-accent; }
+}
+
+.select {
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 9px 12px;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  cursor: pointer;
+
+  &:focus { outline: none; border-color: $border-accent; }
+}
+
+// Kanban
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  align-items: start;
+
+  @include tablet { grid-template-columns: repeat(2, 1fr); }
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.column {
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.columnHeader {
+  @include flex-between;
+  padding: $spacing-md $spacing-md;
+  border-bottom: 1px solid $border;
+}
+
+.columnTitle {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.columnCount {
+  font-size: $font-size-xs;
+  background: rgba(255,255,255,0.06);
+  border-radius: $radius-full;
+  padding: 2px 8px;
+  color: $text-muted;
+}
+
+.columnBody {
+  padding: $spacing-sm;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  transition: background $transition-fast, outline $transition-fast;
+  border-radius: $radius-sm;
+}
+
+.columnBodyOver {
+  background: rgba(245, 158, 11, 0.06);
+  outline: 2px dashed rgba(245, 158, 11, 0.35);
+  outline-offset: -4px;
+}
+
+.colEmpty {
+  text-align: center;
+  padding: $spacing-xl $spacing-md;
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.taskCard {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  transition: border-color $transition-fast, opacity $transition-fast, box-shadow $transition-fast;
+  cursor: grab;
+  user-select: none;
+
+  &:hover { border-color: $border-accent; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  &:active { cursor: grabbing; }
+}
+
+.taskCardDragging {
+  opacity: 0.35;
+  cursor: grabbing;
+}
+
+.taskTop {
+  @include flex-between;
+}
+
+.taskDelete {
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+
+  &:hover { color: #f87171; }
+}
+
+.taskTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  line-height: 1.4;
+}
+
+.taskDesc {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  line-height: 1.4;
+}
+
+.taskMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.taskEvent {
+  color: $accent;
+  @include text-ellipsis;
+  max-width: 100%;
+}
+
+
+// List view
+.listView {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.listItem {
+  @include flex-between;
+  padding: $spacing-md;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  gap: $spacing-md;
+
+  &:hover { border-color: $border-accent; }
+}
+
+.listItemInfo { flex: 1; min-width: 0; }
+
+.listItemTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+}
+
+.listItemSub {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin-top: 4px;
+}
+
+.listItemBadges {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.empty {
+  text-align: center;
+  padding: $spacing-3xl;
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+// Buttons
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: 10px $spacing-md;
+  background: $accent;
+  color: #0a0f1e;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  border: none;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover { background: $accent-hover; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btnDelete {
+  padding: 6px 10px;
+  background: rgba(239,68,68,0.08);
+  border: none;
+  border-radius: $radius-xs;
+  color: #f87171;
+  font-size: $font-size-xs;
+  cursor: pointer;
+
+  &:hover { background: rgba(239,68,68,0.15); }
+}
+
+.btnCancel {
+  padding: 10px $spacing-md;
+  background: none;
+  border: none;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  cursor: pointer;
+
+  &:hover { color: $text-primary; }
+}
+
+// Modal
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: $spacing-md;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: $shadow-lg;
+}
+
+.modalHeader {
+  @include flex-between;
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: 1px solid $border;
+}
+
+.modalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.modalClose {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: $text-muted;
+  border-radius: $radius-xs;
+  cursor: pointer;
+
+  &:hover { background: rgba(255,255,255,0.06); color: $text-primary; }
+}
+
+.modalBody {
+  padding: $spacing-xl;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.modalFooter {
+  @include flex-between;
+  padding: $spacing-md $spacing-xl;
+  border-top: 1px solid $border;
+}
+
+.formGrid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input, .textarea {
+  background: $bg-input;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 10px 12px;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  transition: border-color $transition-fast;
+  font-family: inherit;
+
+  &::placeholder { color: $text-muted; }
+  &:focus { outline: none; border-color: $border-accent; }
+}
+
+.textarea { resize: vertical; }
+
+// Info button
+.titleRow { display: flex; align-items: center; gap: $spacing-sm; }
+.btnInfo {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; background: none; border: none;
+  color: $text-muted; cursor: pointer; border-radius: 50%;
+  transition: all $transition-fast; flex-shrink: 0;
+  &:hover { color: $text-primary; background: rgba(255,255,255,0.07); }
+}
+.infoSection { display: flex; flex-direction: column; gap: 8px; padding-bottom: $spacing-md; border-bottom: 1px solid $border; &:last-child { border-bottom: none; padding-bottom: 0; } }
+.infoSectionTitle { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $text-primary; }
+.infoText { font-size: $font-size-sm; color: $text-secondary; line-height: 1.6; strong { color: $text-primary; } }
+.infoList { font-size: $font-size-sm; color: $text-secondary; line-height: 1.8; padding-left: $spacing-lg; margin: 0; strong { color: $text-primary; } }
+
+// Mobile: bottom-sheet modals
+@include mobile {
+  .overlay {
+    padding: $spacing-xs;
+    align-items: flex-end;
+  }
+  .modal {
+    border-radius: $radius-lg $radius-lg 0 0;
+    max-height: 88vh;
+  }
+  .modalBody { padding: $spacing-md; }
+  .modalFooter { padding: $spacing-sm $spacing-md; }
+}

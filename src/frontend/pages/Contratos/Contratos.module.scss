@@ -246,6 +246,19 @@
   }
 }
 
+.formSectionLabel {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $accent;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding-bottom: $spacing-xs;
+  border-bottom: 1px solid $border;
+  margin-top: $spacing-sm;
+
+  &:first-child { margin-top: 0; }
+}
+
 .empty {
   text-align: center;
   padding: $spacing-3xl;

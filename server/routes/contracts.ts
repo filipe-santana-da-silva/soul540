@@ -2,39 +2,44 @@ import { Router } from 'express';
 import mongoose, { Schema } from 'mongoose';
 import { getTenantUnit } from '../middleware/tenant';
 
-const ContractSchema = new Schema({
+const contractFields = {
   clientName: String,
   clientDocument: { type: String, default: '' },
+  clientRg: { type: String, default: '' },
+  clientAddress: { type: String, default: '' },
   clientEmail: { type: String, default: '' },
   clientPhone: { type: String, default: '' },
   eventId: { type: String, default: '' },
   value: { type: Number, default: 0 },
+  pricePerAdult: { type: Number, default: 0 },
+  adultsCount: { type: Number, default: 0 },
+  pricePerChild: { type: Number, default: 0 },
+  childrenCount: { type: Number, default: 0 },
+  additionalServices: { type: String, default: '' },
+  minGuests: { type: Number, default: 0 },
+  serviceType: { type: String, default: 'self service e coquetel' },
+  drinksDescription: { type: String, default: '' },
+  cancellationDays: { type: Number, default: 30 },
+  pizzaTeam: { type: String, default: '' },
+  drinksTeam: { type: String, default: '' },
   startDate: { type: String, default: '' },
   endDate: { type: String, default: '' },
   description: { type: String, default: '' },
   paymentConditions: { type: String, default: '' },
   terms: { type: String, default: '' },
   status: { type: String, default: 'rascunho' },
-  source: { type: String, default: 'main' },
   createdAt: { type: String, default: () => new Date().toISOString() },
-}, { collection: 'contracts', toJSON: { virtuals: true, versionKey: false } });
+};
 
-const FranchiseContractSchema = new Schema({
-  clientName: String,
-  clientDocument: { type: String, default: '' },
-  clientEmail: { type: String, default: '' },
-  clientPhone: { type: String, default: '' },
-  eventId: { type: String, default: '' },
-  value: { type: Number, default: 0 },
-  startDate: { type: String, default: '' },
-  endDate: { type: String, default: '' },
-  description: { type: String, default: '' },
-  paymentConditions: { type: String, default: '' },
-  terms: { type: String, default: '' },
-  status: { type: String, default: 'rascunho' },
-  source: { type: String, default: 'franchise' },
-  createdAt: { type: String, default: () => new Date().toISOString() },
-}, { collection: 'franchisecontracts', toJSON: { virtuals: true, versionKey: false } });
+const ContractSchema = new Schema(
+  { ...contractFields, source: { type: String, default: 'main' } },
+  { collection: 'contracts', toJSON: { virtuals: true, versionKey: false } },
+);
+
+const FranchiseContractSchema = new Schema(
+  { ...contractFields, source: { type: String, default: 'franchise' } },
+  { collection: 'franchisecontracts', toJSON: { virtuals: true, versionKey: false } },
+);
 
 const Contract = mongoose.models.Contract || mongoose.model('Contract', ContractSchema);
 const FranchiseContract = mongoose.models.FranchiseContract || mongoose.model('FranchiseContract', FranchiseContractSchema);

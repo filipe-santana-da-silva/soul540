@@ -6,6 +6,201 @@
 .title { font-size: $font-size-3xl; font-weight: $font-weight-bold; color: $text-primary; letter-spacing: -0.5px; }
 .subtitle { font-size: $font-size-sm; color: $text-muted; margin-top: 6px; }
 
+// Section labels
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: $spacing-md;
+  margin-top: $spacing-xl;
+
+  svg { color: $accent; flex-shrink: 0; }
+  &:first-of-type { margin-top: 0; }
+}
+
+// ── Standard Menu Cards ────────────────────────────────────────────────────────
+.standardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+
+  @include tablet { grid-template-columns: 1fr 1fr; }
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.standardCard {
+  @include card;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+}
+
+.menuAmber::before { background: linear-gradient(90deg, $accent, #fbbf24); }
+.menuRed::before   { background: linear-gradient(90deg, #dc2626, #ef4444); }
+.menuGold::before  { background: linear-gradient(90deg, #b45309, $accent); }
+
+.standardCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.standardBadge {
+  font-size: 10px;
+  font-weight: $font-weight-bold;
+  color: $accent;
+  background: rgba($accent, 0.1);
+  border: 1px solid rgba($accent, 0.2);
+  border-radius: $radius-full;
+  padding: 2px 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.standardStatsRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.standardStat {
+  font-size: 10px;
+  color: $text-muted;
+
+  strong { color: $text-secondary; font-weight: $font-weight-semibold; }
+}
+
+.standardName {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.standardTagline {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.standardCategories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.standardCatTag {
+  font-size: 10px;
+  font-weight: $font-weight-medium;
+  color: $text-muted;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid $border;
+  border-radius: $radius-xs;
+  padding: 3px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.sweetTag {
+  color: #f9a8d4;
+  background: rgba(249, 168, 212, 0.06);
+  border-color: rgba(249, 168, 212, 0.15);
+}
+
+.standardTotal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: $font-size-xs;
+  color: $text-muted;
+
+  svg { flex-shrink: 0; }
+}
+
+.standardCardFooter {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.btnViewMenu {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px $spacing-md;
+  background: rgba($accent, 0.08);
+  border: 1px solid rgba($accent, 0.2);
+  border-radius: $radius-sm;
+  color: $accent;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover { background: rgba($accent, 0.15); border-color: rgba($accent, 0.35); }
+}
+
+.btnPdf {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 12px;
+  background: rgba(239,68,68,0.07);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: $radius-sm;
+  color: #f87171;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.35); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btnPdfModal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: $radius-xs;
+  color: #f87171;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover { background: rgba(239,68,68,0.18); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinning { animation: spin 0.8s linear infinite; }
+
+// ── Custom menus grid ─────────────────────────────────────────────────────────
 .controls { display: flex; align-items: center; gap: $spacing-md; margin-bottom: $spacing-xl; flex-wrap: wrap; }
 .searchWrap { position: relative; flex: 1; max-width: 400px; }
 .searchIcon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: $text-muted; pointer-events: none; }
@@ -26,13 +221,15 @@
 .cardActions { display: flex; gap: $spacing-sm; padding-top: $spacing-sm; border-top: 1px solid $border; }
 .empty { text-align: center; padding: $spacing-3xl; color: $text-muted; font-size: $font-size-sm; }
 
+// Buttons
 .btnPrimary { display: flex; align-items: center; gap: $spacing-sm; padding: 10px $spacing-md; background: $accent; color: #0a0f1e; font-size: $font-size-sm; font-weight: $font-weight-semibold; border: none; border-radius: $radius-sm; cursor: pointer; transition: background $transition-fast; &:hover { background: $accent-hover; } &:disabled { opacity: 0.5; cursor: not-allowed; } }
 .btnView { flex: 1; padding: 8px; background: rgba(59,130,246,0.1); border: none; border-radius: $radius-xs; color: #60a5fa; font-size: $font-size-sm; cursor: pointer; &:hover { background: rgba(59,130,246,0.2); } }
 .btnEdit { flex: 1; padding: 8px; background: rgba(255,255,255,0.04); border: 1px solid $border; border-radius: $radius-xs; color: $text-secondary; font-size: $font-size-sm; cursor: pointer; &:hover { background: rgba(255,255,255,0.08); } }
 .btnDelete { padding: 8px 12px; background: rgba(239,68,68,0.08); border: none; border-radius: $radius-xs; color: #f87171; font-size: $font-size-sm; cursor: pointer; &:hover { background: rgba(239,68,68,0.15); } }
 .btnCancel { padding: 10px $spacing-md; background: none; border: none; color: $text-muted; font-size: $font-size-sm; cursor: pointer; &:hover { color: $text-primary; } }
 
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; padding: $spacing-md; backdrop-filter: blur(4px); }
+// Modal
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 100; padding: $spacing-md; backdrop-filter: blur(6px); }
 .modal { background: $bg-secondary; border: 1px solid $border; border-radius: $radius-lg; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: $shadow-lg; }
 .preview { background: $bg-secondary; border: 1px solid $border; border-radius: $radius-lg; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: $shadow-lg; }
 .modalHeader { @include flex-between; padding: $spacing-lg $spacing-xl; border-bottom: 1px solid $border; position: sticky; top: 0; background: $bg-secondary; z-index: 1; }
@@ -51,12 +248,10 @@
 .categoriesHeader { @include flex-between; padding: $spacing-md; background: rgba(255,255,255,0.02); border-bottom: 1px solid $border; }
 .categoriesTitle { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $text-primary; }
 .btnAddCat { padding: 6px 12px; background: rgba($accent, 0.1); border: 1px solid $border-accent; border-radius: $radius-xs; color: $accent; font-size: $font-size-xs; font-weight: $font-weight-medium; cursor: pointer; &:hover { background: rgba($accent, 0.2); } }
-
 .catBlock { padding: $spacing-md; border-bottom: 1px solid $border; &:last-child { border-bottom: none; } }
 .catBlockHeader { @include flex-between; gap: $spacing-sm; margin-bottom: $spacing-sm; }
 .catNameInput { flex: 1; background: $bg-input; border: 1px solid $border; border-radius: $radius-xs; padding: 6px 10px; font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $text-primary; &:focus { outline: none; border-color: $border-accent; } }
 .btnRemoveCat { @include flex-center; width: 28px; height: 28px; background: rgba(239,68,68,0.1); border: none; border-radius: $radius-xs; color: #f87171; cursor: pointer; flex-shrink: 0; }
-
 .itemRow { display: grid; grid-template-columns: 1fr 1.5fr 80px 28px; gap: 6px; margin-bottom: 6px; align-items: center; }
 .itemInput { background: $bg-input; border: 1px solid $border; border-radius: $radius-xs; padding: 6px 8px; font-size: $font-size-xs; color: $text-primary; &::placeholder { color: $text-muted; } &:focus { outline: none; border-color: $border-accent; } }
 .itemDesc {}
@@ -64,7 +259,7 @@
 .btnRemoveItem { @include flex-center; width: 28px; height: 28px; background: none; border: none; color: $text-muted; cursor: pointer; flex-shrink: 0; &:hover { color: #f87171; } }
 .btnAddItem { margin-top: $spacing-sm; padding: 5px 10px; background: rgba(255,255,255,0.04); border: 1px dashed $border; border-radius: $radius-xs; color: $text-muted; font-size: $font-size-xs; cursor: pointer; width: 100%; &:hover { color: $text-primary; border-color: $border-accent; } }
 
-// Preview
+// Custom Preview
 .previewBody { padding: $spacing-xl; display: flex; flex-direction: column; gap: $spacing-lg; }
 .previewHeader { font-size: $font-size-sm; color: $text-muted; text-align: center; font-style: italic; }
 .previewTitle { font-size: $font-size-2xl; font-weight: $font-weight-bold; color: $text-primary; text-align: center; }
@@ -77,15 +272,214 @@
 .previewItemPrice { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $accent; flex-shrink: 0; }
 .previewFooter { font-size: $font-size-xs; color: $text-muted; text-align: center; font-style: italic; padding-top: $spacing-md; border-top: 1px solid $border; }
 
-// Mobile: bottom-sheet modals
+// ── Static Menu Preview (full-screen dark themed) ─────────────────────────────
+.menuOverlay {
+  background: #0c0c0c;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 640px;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.8);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  // Scrollbar
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+}
+
+.menuTopActions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.menuClose {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  border-radius: $radius-xs;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover { background: rgba(255,255,255,0.12); color: #fff; }
+}
+
+.menuDocHeader {
+  padding: 32px 32px 24px;
+  text-align: center;
+  background: #111;
+  border-bottom: 2px solid #8b1a1a;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.menuDocBrand {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+
+  span { color: $accent; }
+}
+
+.menuDocTagline {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+  margin-top: 2px;
+  margin-bottom: 12px;
+}
+
+.menuDocTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background: #8b1a1a;
+  display: inline-block;
+  padding: 4px 20px;
+  border-radius: 2px;
+}
+
+.menuDocSub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.menuDocBody {
+  padding: 24px 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @include mobile { padding: 16px; }
+}
+
+.menuDocSection {}
+
+.menuDocCatTitle {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  background: #8b1a1a;
+  color: #fff;
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 2px;
+  margin-bottom: 16px;
+}
+
+.menuDocCatSweet {
+  background: #7c3aed;
+}
+
+.menuDocItems {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menuDocItem {
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+
+  &:last-child { border-bottom: none; padding-bottom: 0; }
+}
+
+.menuDocItemHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.menuDocItemName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.menuDocItemSub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  font-style: italic;
+}
+
+.menuDocItemDesc {
+  font-size: 12px;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+}
+
+.menuDocItemHarm {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin: 6px 0 0;
+  font-style: italic;
+  line-height: 1.5;
+
+  strong { color: rgba(255,255,255,0.5); font-style: normal; }
+}
+
+.menuDocObs {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  font-style: italic;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border-radius: $radius-xs;
+  border: 1px solid rgba(255,255,255,0.06);
+
+  svg { flex-shrink: 0; margin-top: 1px; color: $accent; }
+}
+
+.menuDocContact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px;
+  background: #8b1a1a;
+  border-radius: $radius-sm;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+// Mobile
 @include mobile {
   .overlay {
     padding: $spacing-xs;
     align-items: flex-end;
   }
-  .modal, .preview {
+  .modal, .preview, .menuOverlay {
     border-radius: $radius-lg $radius-lg 0 0;
-    max-height: 88vh;
+    max-height: 92vh;
   }
   .modalBody { padding: $spacing-md; }
   .modalFooter { padding: $spacing-sm $spacing-md; }

@@ -2,11 +2,14 @@ import { useState, useRef, useCallback } from 'react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { PizzaEvent } from '@backend/domain/entities/Event';
+import styles from './ContractDocument.module.scss';
 
-type Contract = {
+export type Contract = {
   id: string;
   clientName: string;
   clientDocument?: string;
+  clientRg?: string;
+  clientAddress?: string;
   clientEmail?: string;
   clientPhone?: string;
   eventId?: string;
@@ -18,8 +21,18 @@ type Contract = {
   terms?: string;
   status: string;
   createdAt: string;
+  pricePerAdult?: number;
+  adultsCount?: number;
+  pricePerChild?: number;
+  childrenCount?: number;
+  additionalServices?: string;
+  minGuests?: number;
+  serviceType?: string;
+  drinksDescription?: string;
+  cancellationDays?: number;
+  pizzaTeam?: string;
+  drinksTeam?: string;
 };
-import styles from './ContractDocument.module.scss';
 
 interface Props {
   contract: Contract;
@@ -28,48 +41,19 @@ interface Props {
   onClose: () => void;
 }
 
-// Inline editable field
 function EF({
-  value,
-  onChange,
-  editing,
-  multiline,
-  bold,
-  placeholder = '_______________',
+  value, onChange, editing, multiline, bold, placeholder = '_______________',
 }: {
-  value: string;
-  onChange: (v: string) => void;
-  editing: boolean;
-  multiline?: boolean;
-  bold?: boolean;
-  placeholder?: string;
+  value: string; onChange: (v: string) => void; editing: boolean;
+  multiline?: boolean; bold?: boolean; placeholder?: string;
 }) {
   if (!editing) {
-    return (
-      <span className={styles.fieldView} style={{ fontWeight: bold ? 600 : undefined }}>
-        {value || placeholder}
-      </span>
-    );
+    return <span className={styles.fieldView} style={{ fontWeight: bold ? 600 : undefined }}>{value || placeholder}</span>;
   }
   if (multiline) {
-    return (
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={styles.fieldTextarea}
-        rows={3}
-      />
-    );
+    return <textarea value={value} onChange={(e) => onChange(e.target.value)} className={styles.fieldTextarea} rows={3} />;
   }
-  return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={styles.fieldInput}
-      style={{ fontWeight: bold ? 600 : undefined }}
-    />
-  );
+  return <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className={styles.fieldInput} style={{ fontWeight: bold ? 600 : undefined }} />;
 }
 
 export default function ContractDocument({ contract, event, eventName, onClose }: Props) {
@@ -77,49 +61,65 @@ export default function ContractDocument({ contract, event, eventName, onClose }
   const [editing, setEditing] = useState(false);
   const [generating, setGenerating] = useState(false);
 
-  // Editable state — company info
-  const [companyName, setCompanyName] = useState('Soul540 - Pizzas Artesanais');
-  const [companyCnpj, setCompanyCnpj] = useState('00.000.000/0001-00');
-  const [companyAddress, setCompanyAddress] = useState('Sao Paulo, SP');
+  // Company (real Soul540 data — editable for adjustments)
+  const [companyName, setCompanyName] = useState('Soul Negócios Eventos e Consultoria Ltda');
+  const [companyCnpj, setCompanyCnpj] = useState('37.763.790/0001-77');
+  const [companyIe, setCompanyIe] = useState('798.871.206.119');
+  const [companyAddress, setCompanyAddress] = useState('Rua Alameda dos Lírios 515 / Jardim Simus / Sorocaba – SP / CEP 18055141');
+  const [companyFantasy, setCompanyFantasy] = useState('Soul 540 Pizzas');
+  const [signerName, setSignerName] = useState('Rogério Narciso Gomes');
+  const [signerCpf, setSignerCpf] = useState('148.778.078-88');
 
-  // Client info
+  // Client
   const [clientName, setClientName] = useState(contract.clientName);
   const [clientDocument, setClientDocument] = useState(contract.clientDocument || '');
-  const [clientEmail, setClientEmail] = useState(contract.clientEmail || '');
-  const [clientPhone, setClientPhone] = useState(contract.clientPhone || '');
+  const [clientRg, setClientRg] = useState(contract.clientRg || '');
+  const [clientAddress, setClientAddress] = useState(contract.clientAddress || '');
 
-  // Event info
+  // Event
   const [eventDate, setEventDate] = useState(
-    event?.date ? format(parseISO(event.date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : ''
+    event?.date ? format(parseISO(event.date), "dd/MM/yyyy", { locale: ptBR }) : '',
   );
   const [eventLocation, setEventLocation] = useState(event?.location || '');
-  const [eventGuests, setEventGuests] = useState(event?.guestCount?.toString() || '');
+  const [eventDesc, setEventDesc] = useState(contract.description || '');
 
-  // Service + payment
-  const [serviceDescription, setServiceDescription] = useState(contract.description);
+  // Pricing
+  const [pricePerAdult, setPricePerAdult] = useState(contract.pricePerAdult?.toFixed(2) || '');
+  const [adultsCount, setAdultsCount] = useState(contract.adultsCount?.toString() || '');
+  const [pricePerChild, setPricePerChild] = useState(contract.pricePerChild?.toFixed(2) || '');
+  const [childrenCount, setChildrenCount] = useState(contract.childrenCount?.toString() || '');
+  const [additionalServices, setAdditionalServices] = useState(contract.additionalServices || '');
   const [totalValue, setTotalValue] = useState(
-    contract.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+    contract.value > 0
+      ? contract.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+      : '',
   );
-  const [paymentConditions, setPaymentConditions] = useState(contract.paymentConditions || '50% adiantado, 50% no dia do evento');
 
-  // Clauses
-  const [clause5, setClause5] = useState(
-    'A CONTRATADA compromete-se a entregar os servicos descritos neste contrato com pontualidade, qualidade e higiene, utilizando ingredientes frescos e de primeira linha.'
-  );
-  const [clause6, setClause6] = useState(
-    'Em caso de cancelamento pelo CONTRATANTE com mais de 7 (sete) dias de antecedencia, sera realizado reembolso integral. Cancelamentos com menos de 7 dias: retencao de 30% do valor total como taxa administrativa.'
-  );
-  const [terms, setTerms] = useState(contract.terms || '');
-  const [forumClause, setForumClause] = useState(
-    'As partes elegem o foro da comarca de Sao Paulo/SP para dirimir eventuais controversias oriundas deste contrato.'
-  );
-  const [contractCity, setContractCity] = useState('Sao Paulo');
+  const adultTotal = (parseFloat(pricePerAdult.replace(',', '.')) || 0) * (parseInt(adultsCount) || 0);
+  const childTotal = (parseFloat(pricePerChild.replace(',', '.')) || 0) * (parseInt(childrenCount) || 0);
 
-  const hasTerms = terms.trim().length > 0;
-  const forumClauseNum = hasTerms ? '8' : '7';
+  // Guests
+  const [minGuests, setMinGuests] = useState(
+    contract.minGuests?.toString() || contract.adultsCount?.toString() || '',
+  );
 
+  // Service
+  const [serviceType, setServiceType] = useState(contract.serviceType || 'self service e coquetel');
+  const [drinksDescription, setDrinksDescription] = useState(contract.drinksDescription || '');
+
+  // Cancellation
+  const [cancellationDays, setCancellationDays] = useState(
+    contract.cancellationDays?.toString() || '30',
+  );
+
+  // Team
+  const [pizzaTeam, setPizzaTeam] = useState(contract.pizzaTeam || '');
+  const [drinksTeam, setDrinksTeam] = useState(contract.drinksTeam || '');
+
+  // Signature location
+  const [contractCity, setContractCity] = useState('Sorocaba/SP');
   const today = format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-  const createdDate = format(parseISO(contract.createdAt), "dd/MM/yyyy", { locale: ptBR });
+  const createdDate = format(parseISO(contract.createdAt), 'dd/MM/yyyy', { locale: ptBR });
 
   const handleGeneratePdf = useCallback(async () => {
     if (!docRef.current) return;
@@ -147,17 +147,14 @@ export default function ContractDocument({ contract, event, eventName, onClose }
 
   return (
     <div className={styles.overlay}>
-      {/* ——— Top bar ——— */}
+      {/* Top bar */}
       <div className={styles.topBar}>
         <div className={styles.topBarLeft}>
           <span className={styles.contractRef}>#{contract.id.split('-').pop()?.toUpperCase()}</span>
           <span className={styles.contractClient}>{clientName}</span>
         </div>
         <div className={styles.topBarActions}>
-          <button
-            className={`${styles.btnBar} ${editing ? styles.btnBarActive : ''}`}
-            onClick={() => setEditing((v) => !v)}
-          >
+          <button className={`${styles.btnBar} ${editing ? styles.btnBarActive : ''}`} onClick={() => setEditing((v) => !v)}>
             {editing ? (
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             ) : (
@@ -179,20 +176,25 @@ export default function ContractDocument({ contract, event, eventName, onClose }
         </div>
       </div>
 
-      {/* ——— Document ——— */}
+      {/* Document */}
       <div className={styles.scrollArea}>
         <div className={styles.paper}>
           <div className={styles.paperInner} ref={docRef}>
 
-            {/* HEADER */}
+            {/* ——— CABEÇALHO ——— */}
             <div className={styles.docHeader}>
               <div className={styles.docCompanyName}>
                 <EF value={companyName} onChange={setCompanyName} editing={editing} bold />
               </div>
               <div className={styles.docCompanyMeta}>
-                <span>CNPJ: <EF value={companyCnpj} onChange={setCompanyCnpj} editing={editing} /></span>
-                <span>|</span>
-                <span><EF value={companyAddress} onChange={setCompanyAddress} editing={editing} /></span>
+                CNPJ <EF value={companyCnpj} onChange={setCompanyCnpj} editing={editing} /> &nbsp;/&nbsp; IE&nbsp;
+                <EF value={companyIe} onChange={setCompanyIe} editing={editing} />
+              </div>
+              <div className={styles.docCompanyMeta}>
+                <EF value={companyAddress} onChange={setCompanyAddress} editing={editing} />
+              </div>
+              <div className={styles.docCompanyMeta}>
+                Marca fantasia: <strong><EF value={companyFantasy} onChange={setCompanyFantasy} editing={editing} /></strong>
               </div>
             </div>
 
@@ -202,156 +204,207 @@ export default function ContractDocument({ contract, event, eventName, onClose }
 
             <div className={styles.docTitle}>CONTRATO DE PRESTAÇÃO DE SERVIÇOS</div>
 
-            {/* PREÂMBULO */}
-            <p className={styles.docPreamble}>
-              Pelo presente instrumento particular, de um lado{' '}
-              <EF value={companyName} onChange={setCompanyName} editing={editing} bold />,
-              inscrita no CNPJ sob o nº{' '}
-              <EF value={companyCnpj} onChange={setCompanyCnpj} editing={editing} bold />,
-              com sede em <EF value={companyAddress} onChange={setCompanyAddress} editing={editing} />,
-              doravante denominada <strong>CONTRATADA</strong>, e de outro lado:
-            </p>
-
-            {/* CLÁUSULA 1 — CONTRATANTE */}
-            <div className={styles.clause}>
-              <div className={styles.clauseTitle}>CLÁUSULA 1ª — DO CONTRATANTE</div>
+            {/* ——— CONTRATANTES ——— */}
+            <div className={styles.partiesBlock}>
+              <p className={styles.partiesLabel}>CONTRATANTES:</p>
               <div className={styles.clauseBox}>
                 <div className={styles.clauseGrid}>
-                  <div className={styles.clauseField}>
-                    <span className={styles.clauseFieldLabel}>Nome / Razão Social: </span>
+                  <div className={styles.clauseField} style={{ gridColumn: '1 / -1' }}>
+                    <span className={styles.clauseFieldLabel}>Nome: </span>
                     <EF value={clientName} onChange={setClientName} editing={editing} bold />
                   </div>
                   <div className={styles.clauseField}>
-                    <span className={styles.clauseFieldLabel}>CPF / CNPJ: </span>
+                    <span className={styles.clauseFieldLabel}>CPF: </span>
                     <EF value={clientDocument} onChange={setClientDocument} editing={editing} placeholder="000.000.000-00" />
                   </div>
                   <div className={styles.clauseField}>
-                    <span className={styles.clauseFieldLabel}>E-mail: </span>
-                    <EF value={clientEmail} onChange={setClientEmail} editing={editing} placeholder="email@exemplo.com" />
-                  </div>
-                  <div className={styles.clauseField}>
-                    <span className={styles.clauseFieldLabel}>Telefone: </span>
-                    <EF value={clientPhone} onChange={setClientPhone} editing={editing} placeholder="(00) 00000-0000" />
-                  </div>
-                </div>
-              </div>
-              <p className={styles.clausePostScript}>
-                Doravante denominado(a) <strong>CONTRATANTE</strong>, têm entre si justo e acertado o presente
-                contrato de prestação de serviços, que se regerá pelas cláusulas seguintes:
-              </p>
-            </div>
-
-            {/* CLÁUSULA 2 — EVENTO */}
-            <div className={styles.clause}>
-              <div className={styles.clauseTitle}>CLÁUSULA 2ª — DO EVENTO</div>
-              <div className={styles.clauseBox}>
-                <div className={styles.clauseField} style={{ marginBottom: 6 }}>
-                  <span className={styles.clauseFieldLabel}>Evento: </span>
-                  <strong>{eventName || '—'}</strong>
-                </div>
-                <div className={styles.clauseGrid}>
-                  <div className={styles.clauseField}>
-                    <span className={styles.clauseFieldLabel}>Data: </span>
-                    <EF value={eventDate} onChange={setEventDate} editing={editing} placeholder="dd/mm/aaaa" />
-                  </div>
-                  <div className={styles.clauseField}>
-                    <span className={styles.clauseFieldLabel}>Nº de Convidados: </span>
-                    <EF value={eventGuests} onChange={setEventGuests} editing={editing} placeholder="0" />
+                    <span className={styles.clauseFieldLabel}>RG: </span>
+                    <EF value={clientRg} onChange={setClientRg} editing={editing} placeholder="00.000.000-0" />
                   </div>
                   <div className={styles.clauseField} style={{ gridColumn: '1 / -1' }}>
-                    <span className={styles.clauseFieldLabel}>Local: </span>
-                    <EF value={eventLocation} onChange={setEventLocation} editing={editing} placeholder="Endereco do evento" />
+                    <span className={styles.clauseFieldLabel}>Endereço: </span>
+                    <EF value={clientAddress} onChange={setClientAddress} editing={editing} placeholder="Rua, nº – Bairro – Cidade, Estado" />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* CLÁUSULA 3 — OBJETO */}
+            {/* ——— CLÁUSULA 1 – OBJETO ——— */}
             <div className={styles.clause}>
-              <div className={styles.clauseTitle}>CLÁUSULA 3ª — DO OBJETO</div>
-              <p className={styles.clauseText} style={{ marginBottom: 8 }}>
-                O presente contrato tem por objeto a prestação dos seguintes serviços pela CONTRATADA:
-              </p>
-              <div className={styles.clauseBox}>
-                <EF value={serviceDescription} onChange={setServiceDescription} editing={editing} multiline />
-              </div>
-            </div>
-
-            {/* CLÁUSULA 4 — PAGAMENTO */}
-            <div className={styles.clause}>
-              <div className={styles.clauseTitle}>CLÁUSULA 4ª — DO PAGAMENTO</div>
-              <p className={styles.clauseText} style={{ marginBottom: 12 }}>
-                Pela prestação dos serviços descritos na Cláusula 3ª, o CONTRATANTE pagará à CONTRATADA o valor total de:
-              </p>
-              <div className={styles.paymentBox}>
-                <div className={styles.paymentValue}>
-                  R$ <EF value={totalValue} onChange={setTotalValue} editing={editing} bold />
-                </div>
-              </div>
+              <div className={styles.clauseTitle}>CLÁUSULA 1 – OBJETO</div>
               <p className={styles.clauseText}>
-                <span className={styles.clauseFieldLabel}>Condições: </span>
-                <EF value={paymentConditions} onChange={setPaymentConditions} editing={editing} />
+                A CONTRATADA prestará serviços de evento de pizzas para{' '}
+                <EF value={eventDesc} onChange={setEventDesc} editing={editing} placeholder="descrição do evento" />{' '}
+                da CONTRATANTE, no dia{' '}
+                <EF value={eventDate} onChange={setEventDate} editing={editing} placeholder="dd/mm/aaaa" />,
+                no{' '}
+                <EF value={eventLocation} onChange={setEventLocation} editing={editing} placeholder="Local do evento – Cidade/UF" />.{' '}
+                O espaço será de responsabilidade dos CONTRATANTES, devendo estar disponível 3 horas antes para montagem.
               </p>
             </div>
 
-            {/* CLÁUSULA 5 — OBRIGAÇÕES */}
+            {/* ——— CLÁUSULA 2 – DETALHES DO SERVIÇO ——— */}
             <div className={styles.clause}>
-              <div className={styles.clauseTitle}>CLÁUSULA 5ª — DAS OBRIGAÇÕES DA CONTRATADA</div>
-              <div className={styles.clauseText}>
-                <EF value={clause5} onChange={setClause5} editing={editing} multiline />
-              </div>
-            </div>
+              <div className={styles.clauseTitle}>CLÁUSULA 2 – DETALHES DO SERVIÇO</div>
 
-            {/* CLÁUSULA 6 — CANCELAMENTO */}
-            <div className={styles.clause}>
-              <div className={styles.clauseTitle}>CLÁUSULA 6ª — DO CANCELAMENTO</div>
-              <div className={styles.clauseText}>
-                <EF value={clause6} onChange={setClause6} editing={editing} multiline />
-              </div>
-            </div>
-
-            {/* CLÁUSULA 7 — DISPOSIÇÕES ADICIONAIS (opcional) */}
-            {hasTerms && (
-              <div className={styles.clause}>
-                <div className={styles.clauseTitle}>CLÁUSULA 7ª — DISPOSIÇÕES ADICIONAIS</div>
-                <div className={styles.clauseText}>
-                  <EF value={terms} onChange={setTerms} editing={editing} multiline />
+              <p className={styles.clauseSubTitle}>2.1 Valor e Pagamento</p>
+              <div className={styles.clauseBox}>
+                <div className={styles.priceRow}>
+                  <span className={styles.clauseFieldLabel}>Valor por adulto:</span>
+                  <span>
+                    R$&nbsp;<EF value={pricePerAdult} onChange={setPricePerAdult} editing={editing} placeholder="0,00" />&nbsp;
+                    (<EF value={adultsCount} onChange={setAdultsCount} editing={editing} placeholder="0" /> convidados)
+                    &nbsp;→ Total R$&nbsp;
+                    {adultTotal > 0
+                      ? adultTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+                      : '___'}
+                  </span>
                 </div>
+                <div className={styles.priceRow}>
+                  <span className={styles.clauseFieldLabel}>Valor por criança (7 a 11 anos):</span>
+                  <span>
+                    R$&nbsp;<EF value={pricePerChild} onChange={setPricePerChild} editing={editing} placeholder="0,00" />&nbsp;
+                    (<EF value={childrenCount} onChange={setChildrenCount} editing={editing} placeholder="0" /> convidados)
+                    &nbsp;→ Total R$&nbsp;
+                    {childTotal > 0
+                      ? childTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+                      : '___'}
+                  </span>
+                </div>
+                <div className={styles.priceRow}>
+                  <span className={styles.clauseFieldLabel}>Serviços adicionais:</span>
+                  <EF value={additionalServices} onChange={setAdditionalServices} editing={editing} placeholder="—" />
+                </div>
+                <div className={styles.priceTotalRow}>
+                  <span className={styles.clauseFieldLabel}>Valor total:</span>
+                  <span className={styles.priceTotalValue}>
+                    R$&nbsp;<EF value={totalValue} onChange={setTotalValue} editing={editing} bold placeholder="0,00" />
+                  </span>
+                </div>
+                <p className={styles.paymentOptions}>
+                  <strong>Formas de Pagamento:</strong><br />
+                  Opção 1: 30% na assinatura via Pix + saldo no dia do evento via Pix.<br />
+                  Opção 2: Parcelamento em até 2x no cartão (link enviado pela CONTRATADA).
+                </p>
               </div>
-            )}
 
-            {/* CLÁUSULA 7/8 — DO FORO */}
-            <div className={styles.clause} style={{ marginBottom: 28 }}>
-              <div className={styles.clauseTitle}>CLÁUSULA {forumClauseNum}ª — DO FORO</div>
-              <div className={styles.clauseText}>
-                <EF value={forumClause} onChange={setForumClause} editing={editing} multiline />
-              </div>
+              <p className={styles.clauseSubTitle}>2.2 Convidados</p>
+              <p className={styles.clauseText}>
+                Valor mínimo referente a{' '}
+                <EF value={minGuests} onChange={setMinGuests} editing={editing} placeholder="0" />{' '}
+                convidados, mesmo em caso de ausência. A lista final será conferida pela CONTRATADA no evento.
+                Aumento acima de 20% deve ser informado com 48h de antecedência.
+                Convidados excedentes serão cobrados no valor unitário acordado.
+              </p>
+
+              <p className={styles.clauseSubTitle}>2.3 Cardápio</p>
+              <p className={styles.clauseText}>
+                Entradas e pizzas salgadas e doces conforme <strong>Cardápio – Anexo I</strong>.
+              </p>
+
+              <p className={styles.clauseSubTitle}>2.4 Sistema de Serviço</p>
+              <p className={styles.clauseText}>
+                <strong>Pizzas:</strong> Serviço em formato{' '}
+                <EF value={serviceType} onChange={setServiceType} editing={editing} />.<br />
+                <strong>Bebidas:</strong>{' '}
+                <EF value={drinksDescription} onChange={setDrinksDescription} editing={editing} placeholder="Descreva o serviço de bebidas" />
+              </p>
             </div>
 
-            {/* DATA E LOCAL */}
+            {/* ——— CLÁUSULA 3 – PRORROGAÇÃO ——— */}
+            <div className={styles.clause}>
+              <div className={styles.clauseTitle}>CLÁUSULA 3 – PRORROGAÇÃO DE HORÁRIO</div>
+              <p className={styles.clauseText}>
+                Horas adicionais serão cobradas em 20% do valor total por hora, conforme disponibilidade de insumos e equipe.
+              </p>
+            </div>
+
+            {/* ——— CLÁUSULA 4 – CANCELAMENTO ——— */}
+            <div className={styles.clause}>
+              <div className={styles.clauseTitle}>CLÁUSULA 4 – CANCELAMENTO</div>
+              <p className={styles.clauseText}>
+                Em até <EF value={cancellationDays} onChange={setCancellationDays} editing={editing} placeholder="30" /> dias não haverá multa.<br />
+                Até 10 dias antes: multa de 20% do valor total.<br />
+                Até 7 dias antes: multa de 50%.<br />
+                Menos de 24h antes: cobrança integral.<br /><br />
+                A Contratada ficará isenta de responsabilidade por eventual não realização do evento em virtude
+                de queda/falta de energia, caso fortuito ou de força maior (chuva, tempestades etc.),
+                entretanto será reagendado uma nova data nas mesmas condições, ou o valor da entrada será
+                devolvido em até 3 dias úteis para a conta bancária.
+              </p>
+            </div>
+
+            {/* ——— CLÁUSULA 5 – CONDIÇÕES GERAIS ——— */}
+            <div className={styles.clause}>
+              <div className={styles.clauseTitle}>CLÁUSULA 5 – CONDIÇÕES GERAIS</div>
+              <p className={styles.clauseText}>
+                A CONTRATADA fornecerá guardanapos, tábuas, bandejas e utensílios necessários.<br />
+                <strong>Equipe das pizzas:</strong>{' '}
+                <EF value={pizzaTeam} onChange={setPizzaTeam} editing={editing} placeholder="Descreva a equipe" /><br />
+                <strong>Equipe da bebida:</strong>{' '}
+                <EF value={drinksTeam} onChange={setDrinksTeam} editing={editing} placeholder="Descreva a equipe" /><br /><br />
+                Até 5 colaboradores de outros serviços poderão se alimentar antes do início sem custo
+                adicional, limitando-se aos sabores disponíveis. Demais serviços não listados são
+                responsabilidade dos CONTRATANTES.
+              </p>
+            </div>
+
+            {/* ——— CLÁUSULA 6 – COMUNICAÇÃO ——— */}
+            <div className={styles.clause}>
+              <div className={styles.clauseTitle}>CLÁUSULA 6 – COMUNICAÇÃO</div>
+              <p className={styles.clauseText}>
+                Dúvidas ou solicitações devem ser feitas via WhatsApp: <strong>(19) 98160-5481</strong>.
+              </p>
+            </div>
+
+            {/* ——— CLÁUSULA 7 – VALIDADE ——— */}
+            <div className={styles.clause}>
+              <div className={styles.clauseTitle}>CLÁUSULA 7 – VALIDADE</div>
+              <p className={styles.clauseText}>
+                Este contrato é válido exclusivamente para o evento descrito e a proposta tem validade
+                de 5 dias a partir da data de assinatura.
+              </p>
+            </div>
+
+            {/* ——— CLÁUSULA 8 – ALTERAÇÕES ——— */}
+            <div className={styles.clause} style={{ marginBottom: 28 }}>
+              <div className={styles.clauseTitle}>CLÁUSULA 8 – ALTERAÇÕES</div>
+              <p className={styles.clauseText}>
+                Qualquer modificação só terá validade se feita por escrito e assinada por ambas as partes.
+              </p>
+            </div>
+
+            {/* ——— DATA E LOCAL ——— */}
             <p className={styles.docDate}>
-              <EF value={contractCity} onChange={setContractCity} editing={editing} />, {today}.
+              <EF value={contractCity} onChange={setContractCity} editing={editing} />, {today}
             </p>
 
-            {/* ASSINATURAS */}
+            {/* ——— ASSINATURAS ——— */}
             <div className={styles.sigGrid}>
               <div className={styles.sigBlock}>
                 <div className={styles.sigLine}>
-                  <div className={styles.sigName}>{companyName.split(' - ')[0]}</div>
+                  <div className={styles.sigName}>
+                    <EF value={companyName} onChange={setCompanyName} editing={editing} />
+                  </div>
                   <div className={styles.sigRole}>CONTRATADA</div>
-                  <div className={styles.sigDoc}>CNPJ: {companyCnpj}</div>
+                  <div className={styles.sigDoc}>
+                    <EF value={signerName} onChange={setSignerName} editing={editing} /> – CPF{' '}
+                    <EF value={signerCpf} onChange={setSignerCpf} editing={editing} />
+                  </div>
                 </div>
               </div>
               <div className={styles.sigBlock}>
                 <div className={styles.sigLine}>
                   <div className={styles.sigName}>{clientName}</div>
                   <div className={styles.sigRole}>CONTRATANTE</div>
-                  <div className={styles.sigDoc}>{clientDocument || 'CPF/CNPJ: ___________'}</div>
+                  <div className={styles.sigDoc}>
+                    CPF: {clientDocument || '___________'} &nbsp;|&nbsp; RG: {clientRg || '___________'}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* TESTEMUNHAS */}
+            {/* ——— TESTEMUNHAS ——— */}
             <div className={styles.witnessGrid}>
               <div className={styles.witnessBlock}>
                 <div className={styles.witnessLine}>
@@ -373,9 +426,57 @@ export default function ContractDocument({ contract, event, eventName, onClose }
               </div>
             </div>
 
-            {/* RODAPÉ */}
             <div className={styles.docFooter}>
               Documento gerado pelo sistema Soul540 | {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+            </div>
+
+            {/* ——— ANEXO I – CARDÁPIO ——— */}
+            <div className={styles.annex}>
+              <div className={styles.annexTitle}>📋 Anexo I – Cardápio do Evento</div>
+
+              <p className={styles.annexSection}>🥖 Entradas</p>
+              <table className={styles.menuTable}>
+                <thead>
+                  <tr><th>Item</th><th>Descrição</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Crostinis</td><td>Torradinhas artesanais com azeite</td></tr>
+                  <tr><td>Pãozinho de Calabresa</td><td>Massa leve com calabresa</td></tr>
+                  <tr><td>Maravilha de Queijo</td><td>Massa recheada com queijo derretido</td></tr>
+                </tbody>
+              </table>
+
+              <p className={styles.annexSection}>🍕 Pizzas Salgadas</p>
+              <table className={styles.menuTable}>
+                <thead>
+                  <tr><th>Nome</th><th>Ingredientes</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>ZUCCHINI SPECIALI</td><td>Massa, molho de tomate, abobrinha, alho frito, parmesão, azeite e orégano</td></tr>
+                  <tr><td>BLU AGRIDOCE</td><td>Massa, molho de tomate, geleia de pimenta, mussarela, gorgonzola, bacon e orégano</td></tr>
+                  <tr><td>MARGHERITA BÚFALA</td><td>Massa, molho de tomate, mussarela de búfala, parmesão, manjericão, azeite e orégano</td></tr>
+                  <tr><td>CALABRESA TRADIZIONALE</td><td>Massa, molho de tomate, mussarela, calabresa, cebola, azeitona e orégano</td></tr>
+                  <tr><td>MOZZARELLA SPECIALI</td><td>Massa, molho de tomate, mussarela, tomate em pedaços, azeitona, parmesão, manjericão, azeite e orégano</td></tr>
+                  <tr><td>QUATTRO FORAGGIO</td><td>Massa, molho, mussarela, parmesão, gorgonzola, catupiry e orégano</td></tr>
+                  <tr><td>DUO FRANGO E BACON</td><td>Massa, molho de tomate, mussarela, frango desfiado, Catupiry, bacon e orégano</td></tr>
+                  <tr><td>SEM GLUTEN</td><td>Massa especial sem glúten com recheios disponíveis no mise en place</td></tr>
+                </tbody>
+              </table>
+
+              <p className={styles.annexSection}>🍫 Pizzas Doces</p>
+              <table className={styles.menuTable}>
+                <thead>
+                  <tr><th>Nome</th><th>Ingredientes</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Chocolate</td><td>Massa, Chocolate ao leite, confeitos</td></tr>
+                </tbody>
+              </table>
+
+              <p className={styles.annexObs}>
+                <strong>Observação:</strong> O serviço será realizado em formato coquetel e rodízio, com garçons
+                servindo fatias aos convidados e mesa de apoio disponível para autoatendimento.
+              </p>
             </div>
 
           </div>

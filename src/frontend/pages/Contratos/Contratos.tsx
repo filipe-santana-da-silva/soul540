@@ -4,43 +4,47 @@ import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import styles from './Contratos.module.scss';
 
-type Contract = {
-  id: string;
-  clientName: string;
-  clientDocument?: string;
-  clientEmail?: string;
-  clientPhone?: string;
-  eventId?: string;
-  value: number;
-  startDate: string;
-  endDate?: string;
-  description: string;
-  paymentConditions?: string;
-  terms?: string;
-  status: string;
-  createdAt: string;
-};
 import ConfirmModal from '@frontend/components/ConfirmModal/ConfirmModal';
-import ContractDocument from './ContractDocument';
+import ContractDocument, { type Contract } from './ContractDocument';
+
+const maskCpf = (v: string) => v.replace(/\D/g, '').slice(0, 11).replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+const maskRg = (v: string) => v.replace(/\D/g, '').slice(0, 9).replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1})$/, '$1-$2');
+const maskPhone = (v: string) => { const d = v.replace(/\D/g, '').slice(0, 11); if (d.length <= 10) return d.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, ''); return d.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').replace(/-$/, ''); };
 
 type FormData = {
   clientName: string;
   clientDocument: string;
+  clientRg: string;
+  clientAddress: string;
   clientEmail: string;
   clientPhone: string;
   eventId: string;
+  description: string;
+  pricePerAdult: string;
+  adultsCount: string;
+  pricePerChild: string;
+  childrenCount: string;
+  additionalServices: string;
   value: string;
+  minGuests: string;
+  serviceType: string;
+  drinksDescription: string;
+  cancellationDays: string;
+  pizzaTeam: string;
+  drinksTeam: string;
   startDate: string;
   endDate: string;
-  description: string;
   paymentConditions: string;
   terms: string;
 };
 
 const emptyForm: FormData = {
-  clientName: '', clientDocument: '', clientEmail: '', clientPhone: '',
-  eventId: '', value: '', startDate: '', endDate: '',
-  description: '', paymentConditions: '', terms: '',
+  clientName: '', clientDocument: '', clientRg: '', clientAddress: '',
+  clientEmail: '', clientPhone: '', eventId: '', description: '',
+  pricePerAdult: '', adultsCount: '', pricePerChild: '', childrenCount: '',
+  additionalServices: '', value: '', minGuests: '', serviceType: 'self service e coquetel',
+  drinksDescription: '', cancellationDays: '30', pizzaTeam: '', drinksTeam: '',
+  startDate: '', endDate: '', paymentConditions: '', terms: '',
 };
 
 function formatDate(iso: string) {
@@ -80,13 +84,26 @@ export default function Contratos() {
     setForm({
       clientName: c.clientName,
       clientDocument: c.clientDocument || '',
+      clientRg: c.clientRg || '',
+      clientAddress: c.clientAddress || '',
       clientEmail: c.clientEmail || '',
       clientPhone: c.clientPhone || '',
       eventId: c.eventId || '',
+      description: c.description,
+      pricePerAdult: c.pricePerAdult?.toString() || '',
+      adultsCount: c.adultsCount?.toString() || '',
+      pricePerChild: c.pricePerChild?.toString() || '',
+      childrenCount: c.childrenCount?.toString() || '',
+      additionalServices: c.additionalServices || '',
       value: String(c.value),
+      minGuests: c.minGuests?.toString() || '',
+      serviceType: c.serviceType || 'self service e coquetel',
+      drinksDescription: c.drinksDescription || '',
+      cancellationDays: c.cancellationDays?.toString() || '30',
+      pizzaTeam: c.pizzaTeam || '',
+      drinksTeam: c.drinksTeam || '',
       startDate: c.startDate,
       endDate: c.endDate || '',
-      description: c.description,
       paymentConditions: c.paymentConditions || '',
       terms: c.terms || '',
     });
@@ -100,13 +117,26 @@ export default function Contratos() {
     const data = {
       clientName: form.clientName,
       clientDocument: form.clientDocument || '',
+      clientRg: form.clientRg || '',
+      clientAddress: form.clientAddress || '',
       clientEmail: form.clientEmail || '',
       clientPhone: form.clientPhone || '',
       eventId: form.eventId || '',
+      description: form.description,
+      pricePerAdult: Number(form.pricePerAdult) || 0,
+      adultsCount: Number(form.adultsCount) || 0,
+      pricePerChild: Number(form.pricePerChild) || 0,
+      childrenCount: Number(form.childrenCount) || 0,
+      additionalServices: form.additionalServices || '',
       value: Number(form.value) || 0,
+      minGuests: Number(form.minGuests) || 0,
+      serviceType: form.serviceType || '',
+      drinksDescription: form.drinksDescription || '',
+      cancellationDays: Number(form.cancellationDays) || 30,
+      pizzaTeam: form.pizzaTeam || '',
+      drinksTeam: form.drinksTeam || '',
       startDate: form.startDate,
       endDate: form.endDate || '',
-      description: form.description,
       paymentConditions: form.paymentConditions || '',
       terms: form.terms || '',
     };
@@ -213,26 +243,33 @@ export default function Contratos() {
               </button>
             </div>
             <div className={styles.modalBody}>
+              {/* Contratante */}
+              <div className={styles.formSectionLabel}>Contratante</div>
               <div className={styles.formGrid2}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Cliente *</label>
-                  <input className={styles.input} value={form.clientName} onChange={(e) => setForm({ ...form, clientName: e.target.value })} placeholder="Nome ou Razao Social" />
+                  <label className={styles.label}>Nome *</label>
+                  <input className={styles.input} value={form.clientName} onChange={(e) => setForm({ ...form, clientName: e.target.value })} placeholder="Nome completo" />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>CPF / CNPJ</label>
-                  <input className={styles.input} value={form.clientDocument} onChange={(e) => setForm({ ...form, clientDocument: e.target.value })} placeholder="000.000.000-00" />
+                  <label className={styles.label}>CPF</label>
+                  <input className={styles.input} value={form.clientDocument} onChange={(e) => setForm({ ...form, clientDocument: maskCpf(e.target.value) })} placeholder="000.000.000-00" />
                 </div>
-              </div>
-              <div className={styles.formGrid2}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>E-mail</label>
-                  <input className={styles.input} type="email" value={form.clientEmail} onChange={(e) => setForm({ ...form, clientEmail: e.target.value })} placeholder="cliente@email.com" />
+                  <label className={styles.label}>RG</label>
+                  <input className={styles.input} value={form.clientRg} onChange={(e) => setForm({ ...form, clientRg: maskRg(e.target.value) })} placeholder="00.000.000-0" />
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Telefone</label>
-                  <input className={styles.input} value={form.clientPhone} onChange={(e) => setForm({ ...form, clientPhone: e.target.value })} placeholder="(00) 00000-0000" />
+                  <input className={styles.input} value={form.clientPhone} onChange={(e) => setForm({ ...form, clientPhone: maskPhone(e.target.value) })} placeholder="(00) 00000-0000" />
+                </div>
+                <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                  <label className={styles.label}>Endereço</label>
+                  <input className={styles.input} value={form.clientAddress} onChange={(e) => setForm({ ...form, clientAddress: e.target.value })} placeholder="Rua, nº – Bairro – Cidade, Estado" />
                 </div>
               </div>
+
+              {/* Evento */}
+              <div className={styles.formSectionLabel}>Evento</div>
               <div className={styles.formGrid2}>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Evento Vinculado</label>
@@ -242,31 +279,71 @@ export default function Contratos() {
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Valor (R$)</label>
-                  <input className={styles.input} type="number" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} placeholder="0" />
-                </div>
-              </div>
-              <div className={styles.formGrid2}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Data de Inicio</label>
+                  <label className={styles.label}>Data do Contrato</label>
                   <input className={styles.input} type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
                 </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Data de Termino</label>
-                  <input className={styles.input} type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
+                <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                  <label className={styles.label}>Descricao do Servico</label>
+                  <input className={styles.input} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Ex: formatura do colégio, aniversário de 15 anos..." />
                 </div>
               </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Descricao / Objeto do Contrato</label>
-                <textarea className={styles.textarea} rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Descreva o servico contratado..." />
+
+              {/* Precificação */}
+              <div className={styles.formSectionLabel}>Precificação</div>
+              <div className={styles.formGrid2}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Valor por Adulto (R$)</label>
+                  <input className={styles.input} type="number" value={form.pricePerAdult} onChange={(e) => setForm({ ...form, pricePerAdult: e.target.value })} placeholder="0,00" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Nº de Adultos</label>
+                  <input className={styles.input} type="number" value={form.adultsCount} onChange={(e) => setForm({ ...form, adultsCount: e.target.value })} placeholder="0" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Valor por Criança (R$)</label>
+                  <input className={styles.input} type="number" value={form.pricePerChild} onChange={(e) => setForm({ ...form, pricePerChild: e.target.value })} placeholder="0,00" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Nº de Crianças (7-11 anos)</label>
+                  <input className={styles.input} type="number" value={form.childrenCount} onChange={(e) => setForm({ ...form, childrenCount: e.target.value })} placeholder="0" />
+                </div>
+                <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                  <label className={styles.label}>Serviços Adicionais</label>
+                  <input className={styles.input} value={form.additionalServices} onChange={(e) => setForm({ ...form, additionalServices: e.target.value })} placeholder="Descreva serviços extras e valores" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Valor Total (R$)</label>
+                  <input className={styles.input} type="number" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} placeholder="0,00" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Mínimo de Convidados</label>
+                  <input className={styles.input} type="number" value={form.minGuests} onChange={(e) => setForm({ ...form, minGuests: e.target.value })} placeholder="0" />
+                </div>
               </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Condicoes de Pagamento</label>
-                <input className={styles.input} value={form.paymentConditions} onChange={(e) => setForm({ ...form, paymentConditions: e.target.value })} placeholder="Ex: 50% adiantado, 50% no dia" />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Clausulas Adicionais</label>
-                <textarea className={styles.textarea} rows={2} value={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.value })} placeholder="Disposicoes especificas deste contrato..." />
+
+              {/* Serviço */}
+              <div className={styles.formSectionLabel}>Serviço</div>
+              <div className={styles.formGrid2}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Sistema de Servico</label>
+                  <input className={styles.input} value={form.serviceType} onChange={(e) => setForm({ ...form, serviceType: e.target.value })} placeholder="self service e coquetel" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Dias sem Multa (Cancelamento)</label>
+                  <input className={styles.input} type="number" value={form.cancellationDays} onChange={(e) => setForm({ ...form, cancellationDays: e.target.value })} placeholder="30" />
+                </div>
+                <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                  <label className={styles.label}>Servico de Bebidas</label>
+                  <input className={styles.input} value={form.drinksDescription} onChange={(e) => setForm({ ...form, drinksDescription: e.target.value })} placeholder="Descreva o serviço de bebidas incluso" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Equipe das Pizzas</label>
+                  <input className={styles.input} value={form.pizzaTeam} onChange={(e) => setForm({ ...form, pizzaTeam: e.target.value })} placeholder="Ex: 2 pizzaiolos + 1 auxiliar" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Equipe de Bebidas</label>
+                  <input className={styles.input} value={form.drinksTeam} onChange={(e) => setForm({ ...form, drinksTeam: e.target.value })} placeholder="Ex: 1 barman" />
+                </div>
               </div>
             </div>
             <div className={styles.modalFooter}>

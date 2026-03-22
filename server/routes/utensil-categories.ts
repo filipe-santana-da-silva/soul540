@@ -1,23 +1,33 @@
 import { Router } from 'express';
 import mongoose, { Schema } from 'mongoose';
+import { getTenantUnit } from '../middleware/tenant';
 
 const CategorySchema = new Schema({
   name: { type: String, required: true, unique: true },
 }, { toJSON: { virtuals: true, versionKey: false } });
 
+const FranchiseCategorySchema = new Schema({
+  name: { type: String, required: true, unique: true },
+}, { collection: 'franchiseutensilcategories', toJSON: { virtuals: true, versionKey: false } });
+
 const Category = mongoose.models.UtensilCategory || mongoose.model('UtensilCategory', CategorySchema);
+const FranchiseCategory = mongoose.models.FranchiseUtensilCategory || mongoose.model('FranchiseUtensilCategory', FranchiseCategorySchema);
+
+function getModel(req: any) {
+  return getTenantUnit(req) === 'franchise' ? FranchiseCategory : Category;
+}
 
 const router = Router();
 
-router.get('/', async (_req, res) => {
-  const cats = await Category.find().sort({ name: 1 });
+router.get('/', async (req, res) => {
+  const cats = await getModel(req).find().sort({ name: 1 });
   res.json(cats.map((c: { name: string }) => c.name));
 });
 
 router.post('/', async (req, res) => {
   const { name } = req.body;
   if (!name?.trim()) return res.status(400).json({ error: 'name required' });
-  const cat = await Category.findOneAndUpdate(
+  const cat = await getModel(req).findOneAndUpdate(
     { name: name.trim() },
     { name: name.trim() },
     { upsert: true, new: true },
@@ -27,7 +37,7 @@ router.post('/', async (req, res) => {
 
 router.delete('/', async (req, res) => {
   const { name } = req.body;
-  await Category.deleteOne({ name });
+  await getModel(req).deleteOne({ name });
   res.status(204).end();
 });
 

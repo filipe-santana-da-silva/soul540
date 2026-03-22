@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 
 type Franchise = {
   id: string;
@@ -35,6 +35,150 @@ type FormData = {
 const emptyForm: FormData = {
   name: '', owner: '', city: '', state: 'SP', monthlyFee: '', status: 'em_implantacao', openDate: '',
 };
+
+type PortalStats = {
+  events: number;
+  tasks: number;
+  employees: number;
+  revenue: number;
+};
+
+type PortalSystem = 'franchise' | 'factory';
+
+function PortalCard({ system, defaultUrl }: { system: PortalSystem; defaultUrl: string }) {
+  const storageKey = `soul540_${system}_url`;
+  const [url, setUrl] = useState(() => localStorage.getItem(storageKey) || defaultUrl);
+  const [editingUrl, setEditingUrl] = useState(false);
+  const [urlDraft, setUrlDraft] = useState(url);
+  const [online, setOnline] = useState<boolean | null>(null);
+  const [stats, setStats] = useState<PortalStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const label = system === 'franchise' ? 'Franquia' : 'Fábrica';
+  const color = system === 'franchise' ? styles.portalAmber : styles.portalBlue;
+
+  const fetchStats = useCallback(async () => {
+    setLoading(true);
+    try {
+      const headers = { 'Content-Type': 'application/json', 'X-System': system };
+      const [evR, tkR, emR, fiR] = await Promise.all([
+        fetch('/api/events', { headers }),
+        fetch('/api/tasks', { headers }),
+        fetch('/api/employees', { headers }),
+        fetch('/api/finances', { headers }),
+      ]);
+      if (!evR.ok) throw new Error('offline');
+      const [events, tasks, employees, finances] = await Promise.all([
+        evR.json(), tkR.json(), emR.json(), fiR.json(),
+      ]);
+      const revenue = Array.isArray(finances)
+        ? finances.filter((f: any) => f.type === 'income').reduce((acc: number, f: any) => acc + (f.amount || 0), 0)
+        : 0;
+      setStats({
+        events: Array.isArray(events) ? events.length : 0,
+        tasks: Array.isArray(tasks) ? tasks.length : 0,
+        employees: Array.isArray(employees) ? employees.length : 0,
+        revenue,
+      });
+      setOnline(true);
+    } catch {
+      setOnline(false);
+      setStats(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [system]);
+
+  useEffect(() => { fetchStats(); }, [fetchStats]);
+
+  const saveUrl = () => {
+    setUrl(urlDraft);
+    localStorage.setItem(storageKey, urlDraft);
+    setEditingUrl(false);
+  };
+
+  return (
+    <div className={`${styles.portalCard} ${color}`}>
+      <div className={styles.portalTop}>
+        <div className={styles.portalIcon}>
+          {system === 'franchise' ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          )}
+        </div>
+        <div>
+          <div className={styles.portalLabel}>Portal {label}</div>
+          <div className={styles.portalSub}>Sistema {system}</div>
+        </div>
+        <div className={styles.portalStatus}>
+          <span className={`${styles.statusDot} ${online === true ? styles.statusOnline : online === false ? styles.statusOffline : ''}`} />
+          <span className={styles.statusLabel}>
+            {online === null ? 'Verificando...' : online ? 'Online' : 'Offline'}
+          </span>
+        </div>
+      </div>
+
+      <div className={styles.portalStats}>
+        {loading ? (
+          <div className={styles.portalLoading}>Carregando dados...</div>
+        ) : stats ? (
+          <>
+            <div className={styles.portalStat}>
+              <span className={styles.portalStatValue}>{stats.events}</span>
+              <span className={styles.portalStatLabel}>Eventos</span>
+            </div>
+            <div className={styles.portalStat}>
+              <span className={styles.portalStatValue}>{stats.tasks}</span>
+              <span className={styles.portalStatLabel}>Tarefas</span>
+            </div>
+            <div className={styles.portalStat}>
+              <span className={styles.portalStatValue}>{stats.employees}</span>
+              <span className={styles.portalStatLabel}>Funcionários</span>
+            </div>
+            <div className={styles.portalStat}>
+              <span className={styles.portalStatValue}>R$ {stats.revenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span>
+              <span className={styles.portalStatLabel}>Receita</span>
+            </div>
+          </>
+        ) : (
+          <div className={styles.portalOfflineMsg}>Sistema inacessível</div>
+        )}
+      </div>
+
+      <div className={styles.portalFooter}>
+        {editingUrl ? (
+          <div className={styles.urlRow}>
+            <input
+              className={styles.urlInput}
+              value={urlDraft}
+              onChange={(e) => setUrlDraft(e.target.value)}
+              placeholder="http://localhost:5174"
+              onKeyDown={(e) => { if (e.key === 'Enter') saveUrl(); if (e.key === 'Escape') setEditingUrl(false); }}
+              autoFocus
+            />
+            <button className={styles.urlSave} onClick={saveUrl}>OK</button>
+            <button className={styles.urlCancel} onClick={() => setEditingUrl(false)}>✕</button>
+          </div>
+        ) : (
+          <div className={styles.urlDisplay} onClick={() => { setUrlDraft(url); setEditingUrl(true); }} title="Clique para editar URL">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            {url}
+          </div>
+        )}
+        <div className={styles.portalActions}>
+          <button className={styles.btnRefresh} onClick={fetchStats} title="Atualizar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+          <a className={styles.btnAccess} href={url} target="_blank" rel="noopener noreferrer">
+            Acessar
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Franquias() {
   const [franchises, setFranchises] = useState<Franchise[]>([]);
@@ -159,6 +303,15 @@ export default function Franquias() {
           <div className={styles.kpiValue}>R$ {monthlyRevenue.toLocaleString('pt-BR')}</div>
         </div>
       </div>
+
+      {/* Portais Conectados */}
+      <div className={styles.sectionLabel}>Portais Conectados</div>
+      <div className={styles.portalsGrid}>
+        <PortalCard system="franchise" defaultUrl="http://localhost:5174" />
+        <PortalCard system="factory" defaultUrl="http://localhost:5175" />
+      </div>
+
+      <div className={styles.sectionLabel}>Unidades Franqueadas</div>
 
       <div className={styles.controls}>
         <div className={styles.searchWrap}>

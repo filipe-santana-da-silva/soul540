@@ -386,6 +386,130 @@
   &:focus { outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
 }
 
+// ——— Parties block ———
+.partiesBlock {
+  margin-bottom: 20px;
+}
+
+.partiesLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+  font-family: Arial, sans-serif;
+  letter-spacing: 0.3px;
+}
+
+// ——— Sub-title inside clause ———
+.clauseSubTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin: 10px 0 6px;
+  font-family: Arial, sans-serif;
+}
+
+// ——— Pricing rows ———
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px dashed #e5e7eb;
+
+  &:last-of-type { border-bottom: none; }
+
+  .clauseFieldLabel { flex-shrink: 0; }
+}
+
+.priceTotalRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 2px solid #111827;
+}
+
+.priceTotalValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.paymentOptions {
+  font-size: 12px;
+  color: #4b5563;
+  margin-top: 12px;
+  line-height: 1.8;
+  font-family: Arial, sans-serif;
+}
+
+// ——— Annex ———
+.annex {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 2px solid #111827;
+  page-break-before: always;
+}
+
+.annexTitle {
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: #111827;
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+}
+
+.annexSection {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  margin: 20px 0 8px;
+  font-family: Arial, sans-serif;
+}
+
+.menuTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+
+  th {
+    background: #f3f4f6;
+    font-weight: 700;
+    color: #374151;
+    padding: 7px 10px;
+    text-align: left;
+    border: 1px solid #d1d5db;
+  }
+
+  td {
+    padding: 6px 10px;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    vertical-align: top;
+    line-height: 1.4;
+  }
+
+  tr:nth-child(even) td {
+    background: #f9fafb;
+  }
+}
+
+.annexObs {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 16px;
+  font-style: italic;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
 // ——— Print styles ———
 @media print {
   .overlay {

@@ -52,6 +52,251 @@
 .label { font-size: $font-size-xs; font-weight: $font-weight-medium; color: $text-secondary; text-transform: uppercase; letter-spacing: 0.5px; }
 .input { background: $bg-input; border: 1px solid $border; border-radius: $radius-sm; padding: 10px 12px; font-size: $font-size-sm; color: $text-primary; transition: border-color $transition-fast; font-family: inherit; &::placeholder { color: $text-muted; } &:focus { outline: none; border-color: $border-accent; } }
 
+// Section labels
+.sectionLabel {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: $spacing-md;
+  margin-top: $spacing-xl;
+
+  &:first-of-type { margin-top: 0; }
+}
+
+// Portals grid
+.portalsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.portalCard {
+  @include card;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+}
+
+.portalAmber::before { background: linear-gradient(90deg, $accent, #fbbf24); }
+.portalBlue::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+
+.portalTop {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.portalIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.06);
+  color: $text-secondary;
+}
+
+.portalAmber .portalIcon { background: rgba($accent, 0.1); color: $accent; }
+.portalBlue .portalIcon { background: rgba(59,130,246,0.1); color: #60a5fa; }
+
+.portalLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.portalSub {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin-top: 2px;
+}
+
+.portalStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+}
+
+.statusOnline { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+.statusOffline { background: #f87171; }
+
+.statusLabel {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.portalStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  background: rgba(255,255,255,0.02);
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+}
+
+.portalStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.portalStatValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  letter-spacing: -0.3px;
+}
+
+.portalStatLabel {
+  font-size: 10px;
+  color: $text-muted;
+  text-align: center;
+}
+
+.portalLoading, .portalOfflineMsg {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  padding: $spacing-sm 0;
+}
+
+.portalFooter {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  border-top: 1px solid $border;
+  padding-top: $spacing-sm;
+}
+
+.urlDisplay {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: $text-muted;
+  font-family: monospace;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: $radius-xs;
+  transition: background $transition-fast;
+
+  &:hover { background: rgba(255,255,255,0.04); color: $text-secondary; }
+}
+
+.urlRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.urlInput {
+  flex: 1;
+  background: $bg-input;
+  border: 1px solid $border-accent;
+  border-radius: $radius-xs;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-family: monospace;
+  color: $text-primary;
+
+  &:focus { outline: none; }
+}
+
+.urlSave {
+  padding: 4px 8px;
+  background: $accent;
+  color: #0a0f1e;
+  border: none;
+  border-radius: $radius-xs;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+}
+
+.urlCancel {
+  padding: 4px 6px;
+  background: none;
+  border: none;
+  color: $text-muted;
+  font-size: 12px;
+  cursor: pointer;
+  &:hover { color: $text-primary; }
+}
+
+.portalActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btnRefresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid $border;
+  border-radius: $radius-xs;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover { background: rgba(255,255,255,0.08); color: $text-primary; }
+}
+
+.btnAccess {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid $border;
+  border-radius: $radius-xs;
+  color: $text-secondary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  transition: all $transition-fast;
+
+  &:hover { background: rgba(255,255,255,0.1); color: $text-primary; }
+}
+
 // Mobile: bottom-sheet modals
 @include mobile {
   .overlay {
