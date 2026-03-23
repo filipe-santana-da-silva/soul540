@@ -5,7 +5,9 @@
   "scripts": {
     "start": "tsx server/index.ts",
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && npm run build:franchise && npm run build:factory",
+    "build:franchise": "cd franchise && npm ci && npm run build",
+    "build:factory": "cd factory && npm ci && npm run build",
     "preview": "vite preview",
     "server": "tsx watch server/index.ts",
     "dev:all": "concurrently \"npm run dev\" \"npm run server\"",

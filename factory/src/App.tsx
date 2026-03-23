@@ -29,7 +29,7 @@ function PublicRoute() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/fabrica">
       <ThemeProvider>
       <AuthProvider>
         <AppProvider>

@@ -307,8 +307,8 @@ export default function Franquias() {
       {/* Portais Conectados */}
       <div className={styles.sectionLabel}>Portais Conectados</div>
       <div className={styles.portalsGrid}>
-        <PortalCard system="franchise" defaultUrl={import.meta.env.VITE_FRANCHISE_URL || 'http://localhost:5174'} />
-        <PortalCard system="factory" defaultUrl={import.meta.env.VITE_FACTORY_URL || 'http://localhost:5175'} />
+        <PortalCard system="franchise" defaultUrl={import.meta.env.VITE_FRANCHISE_URL || `${window.location.origin}/franquia`} />
+        <PortalCard system="factory" defaultUrl={import.meta.env.VITE_FACTORY_URL || `${window.location.origin}/fabrica`} />
       </div>
 
       <div className={styles.sectionLabel}>Unidades Franqueadas</div>

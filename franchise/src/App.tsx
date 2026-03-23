@@ -30,7 +30,7 @@ function PublicRoute() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/franquia">
       <ThemeProvider>
       <AuthProvider>
         <AppProvider>
