@@ -48,12 +48,12 @@ app.use('/api/invoices', invoicesRouter);
 // Serve franchise app at /franquia
 const franchiseDist = path.join(process.cwd(), 'franchise/dist');
 app.use('/franquia', express.static(franchiseDist));
-app.get('/franquia/*', (_req, res) => res.sendFile(path.join(franchiseDist, 'index.html')));
+app.get(['/franquia', '/franquia/*'], (_req, res) => res.sendFile(path.join(franchiseDist, 'index.html')));
 
 // Serve factory app at /fabrica
 const factoryDist = path.join(process.cwd(), 'factory/dist');
 app.use('/fabrica', express.static(factoryDist));
-app.get('/fabrica/*', (_req, res) => res.sendFile(path.join(factoryDist, 'index.html')));
+app.get(['/fabrica', '/fabrica/*'], (_req, res) => res.sendFile(path.join(factoryDist, 'index.html')));
 
 // Serve main app
 const mainDist = path.join(process.cwd(), 'dist');
