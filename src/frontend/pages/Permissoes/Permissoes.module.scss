@@ -11,6 +11,7 @@
 // User list
 .userList { @include card; padding: $spacing-lg; display: flex; flex-direction: column; gap: $spacing-sm; }
 .listTitle { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $text-muted; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: $spacing-xs; }
+.systemGroupLabel { font-size: 10px; font-weight: $font-weight-semibold; color: $accent; text-transform: uppercase; letter-spacing: 0.8px; padding: $spacing-sm 0 $spacing-xs; border-bottom: 1px solid $border; margin-bottom: $spacing-xs; margin-top: $spacing-sm; &:first-child { margin-top: 0; } }
 .userCard { display: flex; align-items: center; gap: $spacing-md; padding: $spacing-md; border-radius: $radius-sm; border: 1px solid transparent; cursor: pointer; transition: all $transition-fast; &:hover { background: rgba(255,255,255,0.04); border-color: $border; } }
 .userCardActive { background: rgba($accent, 0.08) !important; border-color: rgba($accent, 0.3) !important; }
 .userAvatar { width: 38px; height: 38px; border-radius: 50%; background: rgba($accent, 0.15); color: $accent; font-size: $font-size-sm; font-weight: $font-weight-bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }

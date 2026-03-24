@@ -35,8 +35,8 @@ async function generateMenuPdf(menu: StaticMenu) {
         .brand { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
         .brand span { color: #f59e0b; }
         .tagline { font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 2px; margin: 3px 0 14px; }
-        .menu-title-wrap { display: inline-block; background: #8b1a1a; padding: 5px 22px; border-radius: 2px; }
-        .menu-title { font-size: 18px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+        .menu-title-wrap { display: inline-block; background: #fff; padding: 6px 28px; border-radius: 2px; border: 3px solid #8b1a1a; }
+        .menu-title { font-size: 20px; font-weight: 800; color: #8b1a1a; text-transform: uppercase; letter-spacing: 3px; }
         .menu-sub { font-size: 11px; color: rgba(255,255,255,0.4); font-style: italic; margin-top: 8px; }
         .body { padding: 24px 40px 32px; }
         .section { margin-bottom: 24px; }
@@ -237,6 +237,17 @@ export default function Cardapios() {
   const [previewStatic, setPreviewStatic] = useState<StaticMenu | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState<string | null>(null);
+  const [editingStatic, setEditingStatic] = useState<StaticMenu | null>(null);
+  const [staticMenuOverrides, setStaticMenuOverrides] = useState<Record<string, StaticMenu>>(() => {
+    try { return JSON.parse(localStorage.getItem('soul540_menu_overrides') || '{}'); } catch { return {}; }
+  });
+  const getStaticMenu = (menu: StaticMenu): StaticMenu => staticMenuOverrides[menu.id] || menu;
+  const saveStaticOverride = (menu: StaticMenu) => {
+    const next = { ...staticMenuOverrides, [menu.id]: menu };
+    setStaticMenuOverrides(next);
+    localStorage.setItem('soul540_menu_overrides', JSON.stringify(next));
+    setEditingStatic(null);
+  };
 
   const handleGeneratePdf = useCallback(async (menu: StaticMenu) => {
     setGeneratingPdf(menu.id);
@@ -323,22 +334,23 @@ export default function Cardapios() {
         {SOUL540_MENUS.map((menu) => {
           const colorClass = MENU_COLORS[menu.id] || '';
           const totalPizzas = menu.categories.find(c => c.name.toLowerCase().includes('salgad') || c.name.toLowerCase().includes('tradicional'))?.items.length || 0;
+          const activeMenu = getStaticMenu(menu);
           return (
             <div key={menu.id} className={`${styles.standardCard} ${colorClass}`}>
               <div className={styles.standardCardTop}>
                 <div className={styles.standardBadge}>Soul540</div>
                 <div className={styles.standardStatsRow}>
-                  {menu.categories.map((cat) => (
+                  {activeMenu.categories.map((cat) => (
                     <span key={cat.name} className={styles.standardStat}>
                       <strong>{cat.items.length}</strong> {cat.name.toLowerCase().includes('entrada') ? 'entradas' : cat.name.toLowerCase().includes('doce') ? 'doces' : 'sabores'}
                     </span>
                   ))}
                 </div>
               </div>
-              <h3 className={styles.standardName}>{menu.name}</h3>
-              <p className={styles.standardTagline}>{menu.tagline}</p>
+              <h3 className={styles.standardName}>{activeMenu.name}</h3>
+              <p className={styles.standardTagline}>{activeMenu.tagline}</p>
               <div className={styles.standardCategories}>
-                {menu.categories.map((cat) => (
+                {activeMenu.categories.map((cat) => (
                   <div key={cat.name} className={`${styles.standardCatTag} ${isSweet(cat) ? styles.sweetTag : ''}`}>
                     {cat.name}
                   </div>
@@ -346,16 +358,20 @@ export default function Cardapios() {
               </div>
               <div className={styles.standardTotal}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                {totalStaticItems(menu)} itens no total · {totalPizzas} sabores de pizza
+                {totalStaticItems(activeMenu)} itens no total · {totalPizzas} sabores de pizza
               </div>
               <div className={styles.standardCardFooter}>
-                <button className={styles.btnViewMenu} onClick={() => setPreviewStatic(menu)}>
+                <button className={styles.btnViewMenu} onClick={() => setPreviewStatic(activeMenu)}>
                   Ver Cardápio
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
+                <button className={styles.btnEdit} onClick={() => setEditingStatic(JSON.parse(JSON.stringify(activeMenu)))} title="Editar itens">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Editar
+                </button>
                 <button
                   className={styles.btnPdf}
-                  onClick={() => handleGeneratePdf(menu)}
+                  onClick={() => handleGeneratePdf(activeMenu)}
                   disabled={generatingPdf === menu.id}
                   title="Gerar PDF"
                 >
@@ -599,6 +615,65 @@ export default function Cardapios() {
           onConfirm={confirmDelete}
           onClose={() => setDeleteTargetId(null)}
         />
+      )}
+
+      {/* Static menu edit modal */}
+      {editingStatic && (
+        <div className={styles.overlay} onClick={() => setEditingStatic(null)}>
+          <div className={styles.modal} style={{ maxWidth: 660, maxHeight: '85vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Editar — {editingStatic.name}</h2>
+              <button className={styles.modalClose} onClick={() => setEditingStatic(null)}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              {editingStatic.categories.map((cat, ci) => (
+                <div key={ci} style={{ marginBottom: 20 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--accent, #ffc107)', marginBottom: 8 }}>{cat.name}</p>
+                  {cat.items.map((item, ii) => (
+                    <div key={ii} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'flex-start' }}>
+                      <input
+                        className={styles.input}
+                        value={item.name}
+                        onChange={(e) => {
+                          const next = JSON.parse(JSON.stringify(editingStatic)) as StaticMenu;
+                          next.categories[ci].items[ii].name = e.target.value;
+                          setEditingStatic(next);
+                        }}
+                        placeholder="Nome do item"
+                        style={{ flex: 1 }}
+                      />
+                      <button
+                        style={{ background: 'none', border: '1px solid #3a4560', borderRadius: 6, padding: '6px 8px', color: '#ef4444', cursor: 'pointer', flexShrink: 0 }}
+                        onClick={() => {
+                          const next = JSON.parse(JSON.stringify(editingStatic)) as StaticMenu;
+                          next.categories[ci].items.splice(ii, 1);
+                          setEditingStatic(next);
+                        }}
+                        title="Remover item"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    style={{ fontSize: 12, color: 'var(--accent, #ffc107)', background: 'none', border: '1px dashed #3a4560', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', marginTop: 4 }}
+                    onClick={() => {
+                      const next = JSON.parse(JSON.stringify(editingStatic)) as StaticMenu;
+                      next.categories[ci].items.push({ name: '', description: '' });
+                      setEditingStatic(next);
+                    }}
+                  >+ Adicionar item</button>
+                </div>
+              ))}
+            </div>
+            <div className={styles.modalFooter}>
+              <button className={styles.btnCancel} onClick={() => setEditingStatic(null)}>Cancelar</button>
+              <button className={styles.btnPrimary} onClick={() => saveStaticOverride(editingStatic)}>Salvar Alterações</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

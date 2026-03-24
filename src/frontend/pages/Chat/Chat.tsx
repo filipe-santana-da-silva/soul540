@@ -154,8 +154,7 @@ export default function Chat() {
           <div ref={messagesEndRef} />
         </div>
 
-        {messages.length <= 1 && (
-          <div className={styles.suggestions}>
+        <div className={styles.suggestions}>
             <p className={styles.suggestionsTitle}>Sugestoes:</p>
             <div className={styles.suggestionsList}>
               {SUGGESTIONS.map((s) => (
@@ -165,7 +164,6 @@ export default function Chat() {
               ))}
             </div>
           </div>
-        )}
 
         <div className={styles.inputArea}>
           <input

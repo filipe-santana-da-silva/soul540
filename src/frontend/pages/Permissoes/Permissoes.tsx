@@ -9,7 +9,27 @@ type AppUser = {
   isAdmin: boolean;
   permissions: string[];
   passwordPlain?: string;
+  unit?: string;
 };
+
+const SYSTEM_LABELS: Record<string, string> = {
+  main: 'Principal',
+  franchise: 'Franquia',
+  factory: 'Fábrica',
+};
+
+function groupUsersByUnit(users: AppUser[]): { label: string; users: AppUser[] }[] {
+  const groups: Record<string, AppUser[]> = {};
+  for (const u of users) {
+    const key = u.unit || 'main';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(u);
+  }
+  return Object.entries(groups).map(([key, us]) => ({
+    label: SYSTEM_LABELS[key] || key,
+    users: us,
+  }));
+}
 
 const ALL_PAGES = [
   { group: 'Principal', items: [{ key: 'dashboard', label: 'Dashboard' }] },
@@ -123,7 +143,10 @@ export default function Permissoes() {
         {/* Left — user list */}
         <div className={styles.userList}>
           <p className={styles.listTitle}>Usuários ({users.length})</p>
-          {users.map(u => (
+          {groupUsersByUnit(users).map(group => (
+            <div key={group.label}>
+              <p className={styles.systemGroupLabel}>{group.label}</p>
+              {group.users.map(u => (
             <div
               key={u.id}
               className={`${styles.userCard} ${selected?.id === u.id ? styles.userCardActive : ''}`}
@@ -162,6 +185,8 @@ export default function Permissoes() {
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                 </button>
               </div>
+            </div>
+              ))}
             </div>
           ))}
           {users.length === 0 && <p className={styles.empty}>Nenhum usuário cadastrado.</p>}

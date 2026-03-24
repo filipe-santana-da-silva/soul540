@@ -65,11 +65,12 @@ export default function EstoqueInsumos() {
   const [supplies, setSupplies] = useState<Supply[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [categories, setCategories] = useState<string[]>([]);
+
   useEffect(() => {
     fetch('/api/supplies').then(r => r.json()).then(setSupplies).finally(() => setLoading(false));
     fetch('/api/supply-categories').then(r => r.json()).then(setCategories).catch(() => {});
   }, []);
-  const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showCatModal, setShowCatModal] = useState(false);
   const [newCategory, setNewCategory] = useState('');

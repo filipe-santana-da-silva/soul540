@@ -10,6 +10,8 @@ import ContractDocument, { type Contract } from './ContractDocument';
 const maskCpf = (v: string) => v.replace(/\D/g, '').slice(0, 11).replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 const maskRg = (v: string) => v.replace(/\D/g, '').slice(0, 9).replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1})$/, '$1-$2');
 const maskPhone = (v: string) => { const d = v.replace(/\D/g, '').slice(0, 11); if (d.length <= 10) return d.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, ''); return d.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').replace(/-$/, ''); };
+const maskCurrency = (v: string) => { const d = v.replace(/\D/g, ''); if (!d) return ''; const n = parseInt(d, 10); const reais = Math.floor(n / 100); const cents = n % 100; return `R$ ${reais.toLocaleString('pt-BR')},${String(cents).padStart(2, '0')}`; };
+const parseCurrency = (v: string) => { const d = v.replace(/\D/g, ''); return d ? parseInt(d, 10) / 100 : 0; };
 
 type FormData = {
   clientName: string;
@@ -90,12 +92,12 @@ export default function Contratos() {
       clientPhone: c.clientPhone || '',
       eventId: c.eventId || '',
       description: c.description,
-      pricePerAdult: c.pricePerAdult?.toString() || '',
+      pricePerAdult: c.pricePerAdult ? maskCurrency(String(Math.round(c.pricePerAdult * 100))) : '',
       adultsCount: c.adultsCount?.toString() || '',
-      pricePerChild: c.pricePerChild?.toString() || '',
+      pricePerChild: c.pricePerChild ? maskCurrency(String(Math.round(c.pricePerChild * 100))) : '',
       childrenCount: c.childrenCount?.toString() || '',
       additionalServices: c.additionalServices || '',
-      value: String(c.value),
+      value: c.value ? maskCurrency(String(Math.round(c.value * 100))) : '',
       minGuests: c.minGuests?.toString() || '',
       serviceType: c.serviceType || 'self service e coquetel',
       drinksDescription: c.drinksDescription || '',
@@ -123,12 +125,12 @@ export default function Contratos() {
       clientPhone: form.clientPhone || '',
       eventId: form.eventId || '',
       description: form.description,
-      pricePerAdult: Number(form.pricePerAdult) || 0,
+      pricePerAdult: parseCurrency(form.pricePerAdult),
       adultsCount: Number(form.adultsCount) || 0,
-      pricePerChild: Number(form.pricePerChild) || 0,
+      pricePerChild: parseCurrency(form.pricePerChild),
       childrenCount: Number(form.childrenCount) || 0,
       additionalServices: form.additionalServices || '',
-      value: Number(form.value) || 0,
+      value: parseCurrency(form.value),
       minGuests: Number(form.minGuests) || 0,
       serviceType: form.serviceType || '',
       drinksDescription: form.drinksDescription || '',
@@ -292,16 +294,16 @@ export default function Contratos() {
               <div className={styles.formSectionLabel}>Precificação</div>
               <div className={styles.formGrid2}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Valor por Adulto (R$)</label>
-                  <input className={styles.input} type="number" value={form.pricePerAdult} onChange={(e) => setForm({ ...form, pricePerAdult: e.target.value })} placeholder="0,00" />
+                  <label className={styles.label}>Valor por Adulto</label>
+                  <input className={styles.input} value={form.pricePerAdult} onChange={(e) => setForm({ ...form, pricePerAdult: maskCurrency(e.target.value) })} placeholder="R$ 0,00" />
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Nº de Adultos</label>
                   <input className={styles.input} type="number" value={form.adultsCount} onChange={(e) => setForm({ ...form, adultsCount: e.target.value })} placeholder="0" />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Valor por Criança (R$)</label>
-                  <input className={styles.input} type="number" value={form.pricePerChild} onChange={(e) => setForm({ ...form, pricePerChild: e.target.value })} placeholder="0,00" />
+                  <label className={styles.label}>Valor por Criança</label>
+                  <input className={styles.input} value={form.pricePerChild} onChange={(e) => setForm({ ...form, pricePerChild: maskCurrency(e.target.value) })} placeholder="R$ 0,00" />
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Nº de Crianças (7-11 anos)</label>
@@ -312,8 +314,8 @@ export default function Contratos() {
                   <input className={styles.input} value={form.additionalServices} onChange={(e) => setForm({ ...form, additionalServices: e.target.value })} placeholder="Descreva serviços extras e valores" />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Valor Total (R$)</label>
-                  <input className={styles.input} type="number" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} placeholder="0,00" />
+                  <label className={styles.label}>Valor Total</label>
+                  <input className={styles.input} value={form.value} onChange={(e) => setForm({ ...form, value: maskCurrency(e.target.value) })} placeholder="R$ 0,00" />
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Mínimo de Convidados</label>
