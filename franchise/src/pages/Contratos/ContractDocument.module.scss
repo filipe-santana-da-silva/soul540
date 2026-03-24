@@ -1,0 +1,523 @@
+// ContractDocument — full-screen contract viewer/editor
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: #060b18;
+}
+
+// ——— Top bar ———
+.topBar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #0d1426;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 12px;
+
+  @media (max-width: 600px) { padding: 8px 12px; }
+}
+
+.topBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.contractRef {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.contractClient {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+
+  @media (max-width: 600px) { display: none; }
+}
+
+.topBarActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btnBar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: none;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover { background: rgba(255, 255, 255, 0.06); color: #fff; border-color: rgba(255,255,255,0.2); }
+
+  svg { flex-shrink: 0; }
+
+  @media (max-width: 600px) {
+    padding: 6px 8px;
+    span { display: none; }
+  }
+}
+
+.btnBarActive {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+
+  &:hover { background: rgba(59, 130, 246, 0.18); }
+}
+
+.btnBarPrimary {
+  background: #f59e0b;
+  color: #0a0f1e;
+  border-color: transparent;
+  font-weight: 600;
+
+  &:hover { background: #d97706; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btnBarClose {
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+
+  &:hover { color: #fff; }
+}
+
+// ——— Scroll area ———
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  background: #e5e7eb;
+  padding: 24px 16px;
+
+  @media (max-width: 600px) { padding: 12px 4px; }
+}
+
+// ——— Paper ———
+.paper {
+  background: #ffffff;
+  color: #111827;
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.25);
+}
+
+.paperInner {
+  padding: 48px 56px;
+  font-family: Georgia, 'Times New Roman', serif;
+
+  @media (max-width: 700px) { padding: 28px 24px; }
+}
+
+// ——— Document sections ———
+.docHeader {
+  text-align: center;
+  border-bottom: 2px solid #111827;
+  padding-bottom: 16px;
+  margin-bottom: 8px;
+}
+
+.docCompanyName {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: 0.5px;
+}
+
+.docCompanyMeta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #6b7280;
+  font-family: Arial, sans-serif;
+}
+
+.docRef {
+  font-size: 10px;
+  color: #9ca3af;
+  text-align: right;
+  margin-bottom: 16px;
+  font-family: Arial, sans-serif;
+}
+
+.docTitle {
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: #111827;
+  margin-bottom: 28px;
+  letter-spacing: 1.5px;
+}
+
+.docPreamble {
+  font-size: 13px;
+  line-height: 1.75;
+  margin-bottom: 24px;
+  text-align: justify;
+}
+
+// ——— Clauses ———
+.clause {
+  margin-bottom: 24px;
+}
+
+.clauseTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 10px;
+  letter-spacing: 0.3px;
+  font-family: Arial, sans-serif;
+}
+
+.clauseBox {
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-size: 13px;
+}
+
+.clauseGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.clauseField {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.clauseFieldLabel {
+  font-weight: 600;
+  color: #4b5563;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+
+.clauseText {
+  font-size: 13px;
+  line-height: 1.75;
+  text-align: justify;
+}
+
+.clausePostScript {
+  font-size: 13px;
+  line-height: 1.75;
+  margin-top: 8px;
+  text-align: justify;
+}
+
+// Highlighted payment box
+.paymentBox {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.paymentValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+// ——— Date/location ———
+.docDate {
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+// ——— Signatures ———
+.sigGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px 48px;
+  margin-top: 32px;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; gap: 24px; }
+}
+
+.sigBlock {
+  text-align: center;
+}
+
+.sigLine {
+  border-top: 2px solid #1f2937;
+  padding-top: 10px;
+  margin-top: 64px;
+}
+
+.sigName {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sigRole {
+  font-size: 11px;
+  color: #6b7280;
+  font-family: Arial, sans-serif;
+}
+
+.sigDoc {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 2px;
+  font-family: Arial, sans-serif;
+}
+
+// Witness
+.witnessGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px 48px;
+  margin-top: 32px;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.witnessBlock {
+  text-align: center;
+}
+
+.witnessLine {
+  border-top: 1px solid #9ca3af;
+  padding-top: 8px;
+  margin-top: 48px;
+}
+
+.witnessRole {
+  font-size: 11px;
+  color: #6b7280;
+  font-family: Arial, sans-serif;
+}
+
+.witnessBlank {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 4px;
+  font-family: Arial, sans-serif;
+  line-height: 1.8;
+}
+
+// ——— Footer ———
+.docFooter {
+  margin-top: 32px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+  font-size: 9px;
+  color: #9ca3af;
+  font-family: Arial, sans-serif;
+}
+
+// ——— Editable field ———
+.fieldView {
+  // inherits surrounding text style
+}
+
+.fieldInput {
+  border: 1px solid #93c5fd;
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+  background: #eff6ff;
+  font-weight: inherit;
+  min-width: 80px;
+
+  &:focus { outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
+}
+
+.fieldTextarea {
+  width: 100%;
+  border: 1px solid #93c5fd;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #111827;
+  background: #eff6ff;
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.75;
+
+  &:focus { outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
+}
+
+// ——— Parties block ———
+.partiesBlock {
+  margin-bottom: 20px;
+}
+
+.partiesLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+  font-family: Arial, sans-serif;
+  letter-spacing: 0.3px;
+}
+
+// ——— Sub-title inside clause ———
+.clauseSubTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin: 10px 0 6px;
+  font-family: Arial, sans-serif;
+}
+
+// ——— Pricing rows ———
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px dashed #e5e7eb;
+
+  &:last-of-type { border-bottom: none; }
+
+  .clauseFieldLabel { flex-shrink: 0; }
+}
+
+.priceTotalRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 2px solid #111827;
+}
+
+.priceTotalValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.paymentOptions {
+  font-size: 12px;
+  color: #4b5563;
+  margin-top: 12px;
+  line-height: 1.8;
+  font-family: Arial, sans-serif;
+}
+
+// ——— Annex ———
+.annex {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 2px solid #111827;
+  page-break-before: always;
+}
+
+.annexTitle {
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: #111827;
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+}
+
+.annexSection {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  margin: 20px 0 8px;
+  font-family: Arial, sans-serif;
+}
+
+.menuTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+
+  th {
+    background: #f3f4f6;
+    font-weight: 700;
+    color: #374151;
+    padding: 7px 10px;
+    text-align: left;
+    border: 1px solid #d1d5db;
+  }
+
+  td {
+    padding: 6px 10px;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    vertical-align: top;
+    line-height: 1.4;
+  }
+
+  tr:nth-child(even) td {
+    background: #f9fafb;
+  }
+}
+
+.annexObs {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 16px;
+  font-style: italic;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+// ——— Print styles ———
+@media print {
+  .overlay {
+    position: static;
+    background: white;
+  }
+
+  .topBar { display: none; }
+  .scrollArea { padding: 0; background: white; }
+  .paper { box-shadow: none; max-width: 100%; }
+}

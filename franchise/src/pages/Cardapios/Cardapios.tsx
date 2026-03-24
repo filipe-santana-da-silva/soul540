@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
+import { apiFetch } from '@/lib/api';
 import styles from './Cardapios.module.scss';
 import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 
@@ -7,11 +8,13 @@ type MenuItem = { id: string; name: string; description: string; price: number; 
 type MenuCategory = { id: string; name: string; items: MenuItem[]; };
 type Menu = { id: string; name: string; eventId?: string; headerText: string; footerText: string; categories: MenuCategory[]; createdAt: string; };
 
-const mockMenus: Menu[] = [];
-
 export default function Cardapios() {
   const { events } = useApp();
-  const [menus, setMenus] = useState<Menu[]>(mockMenus);
+  const [menus, setMenus] = useState<Menu[]>([]);
+
+  useEffect(() => {
+    apiFetch('/api/menus').then(r => r.json()).then(setMenus).catch(() => {});
+  }, []);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -66,26 +69,27 @@ export default function Cardapios() {
     resetForm();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formName) return;
-    const data: Omit<Menu, 'id' | 'createdAt'> = {
-      name: formName,
-      eventId: formEventId || undefined,
-      headerText: formHeaderText,
-      footerText: formFooterText,
-      categories: formCategories,
-    };
+    const data = { name: formName, eventId: formEventId || '', headerText: formHeaderText, footerText: formFooterText, categories: formCategories };
     if (editingId) {
-      setMenus((prev) => prev.map((m) => m.id === editingId ? { ...m, ...data } : m));
+      const res = await apiFetch(`/api/menus/${editingId}`, { method: 'PUT', body: JSON.stringify(data) });
+      const updated: Menu = await res.json();
+      setMenus((prev) => prev.map((m) => m.id === editingId ? updated : m));
     } else {
-      setMenus((prev) => [...prev, { ...data, id: `men-${Date.now()}`, createdAt: new Date().toISOString() }]);
+      const res = await apiFetch('/api/menus', { method: 'POST', body: JSON.stringify(data) });
+      const created: Menu = await res.json();
+      setMenus((prev) => [...prev, created]);
     }
     closeModal();
   };
 
   const handleDelete = (id: string) => { setDeleteTargetId(id); };
-  const confirmDelete = () => {
-    if (deleteTargetId) setMenus((prev) => prev.filter((m) => m.id !== deleteTargetId));
+  const confirmDelete = async () => {
+    if (deleteTargetId) {
+      await apiFetch(`/api/menus/${deleteTargetId}`, { method: 'DELETE' });
+      setMenus((prev) => prev.filter((m) => m.id !== deleteTargetId));
+    }
     setDeleteTargetId(null);
   };
 

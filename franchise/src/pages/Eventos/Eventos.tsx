@@ -157,12 +157,22 @@ function EventCard({ ev, employeeMap, onView, onEdit, onDelete }: {
   );
 }
 
+const STATIC_MENU_NAMES = ['Menu Eccezionale', 'Menu Superiore', 'Menu Raffinato'];
+
 export default function Eventos() {
   const { events, addEvent, updateEvent, deleteEvent } = useApp();
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [availableMenus, setAvailableMenus] = useState<string[]>(STATIC_MENU_NAMES);
+  const [showMenuDropdown, setShowMenuDropdown] = useState(false);
 
   useEffect(() => {
     apiFetch('/api/employees').then(r => r.json()).then(setEmployees).catch(() => {});
+    apiFetch('/api/menus').then(r => r.json()).then((data: { name: string }[]) => {
+      if (Array.isArray(data)) {
+        const apiNames = data.map(m => m.name).filter(n => !STATIC_MENU_NAMES.includes(n));
+        setAvailableMenus([...STATIC_MENU_NAMES, ...apiNames]);
+      }
+    }).catch(() => {});
   }, []);
   const [search, setSearch] = useState('');
 const [showModal, setShowModal] = useState(false);
@@ -511,8 +521,35 @@ return (
               <div className={styles.formSection}>
                 <p className={styles.formSectionTitle}>Extras</p>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Cardapio (separado por virgula)</label>
-                  <input className={styles.input} value={form.menu} onChange={(e) => setForm({ ...form, menu: e.target.value })} placeholder="Margherita, Calabresa, Quatro Queijos" />
+                  <label className={styles.label}>Cardápio</label>
+                  <div style={{ position: 'relative' }}>
+                    <div
+                      className={styles.input}
+                      style={{ cursor: 'pointer', userSelect: 'none', minHeight: 38, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}
+                      onClick={() => setShowMenuDropdown(v => !v)}
+                    >
+                      {form.menu ? form.menu.split(',').map(s => s.trim()).filter(Boolean).map(name => (
+                        <span key={name} style={{ background: 'rgba(255,193,7,0.15)', color: '#ffc107', fontSize: 12, borderRadius: 4, padding: '2px 7px' }}>{name}</span>
+                      )) : <span style={{ color: 'var(--text-muted, #666)', fontSize: 13 }}>Selecionar cardápios...</span>}
+                    </div>
+                    {showMenuDropdown && (
+                      <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#131929', border: '1px solid #2a3352', borderRadius: 8, padding: 8, marginTop: 4, maxHeight: 200, overflowY: 'auto' }}>
+                        {availableMenus.map(name => {
+                          const selected = form.menu.split(',').map(s => s.trim()).includes(name);
+                          return (
+                            <label key={name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', cursor: 'pointer', borderRadius: 4, background: selected ? 'rgba(255,193,7,0.08)' : 'transparent' }}>
+                              <input type="checkbox" checked={selected} onChange={() => {
+                                const current = form.menu.split(',').map(s => s.trim()).filter(Boolean);
+                                const next = selected ? current.filter(n => n !== name) : [...current, name];
+                                setForm({ ...form, menu: next.join(', ') });
+                              }} />
+                              <span style={{ fontSize: 13 }}>{name}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Observacoes</label>

@@ -6,8 +6,10 @@ import { getTenantUnit } from '../middleware/tenant';
 const router = Router();
 
 // GET /api/users
-router.get('/', async (_req, res) => {
-  const users = await UserModel.find().select('-passwordHash');
+router.get('/', async (req, res) => {
+  const unit = getTenantUnit(req);
+  const query = (unit && unit !== 'main') ? { unit } : {};
+  const users = await UserModel.find(query).select('-passwordHash');
   res.json(users);
 });
 

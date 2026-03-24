@@ -15,6 +15,8 @@ import Permissoes from '@/pages/Permissoes/Permissoes';
 import Financeiro from '@/pages/Financeiro/Financeiro';
 import Tarefas from '@/pages/Tarefas/Tarefas';
 import MinhaConta from '@/pages/MinhaConta/MinhaConta';
+import Cardapios from '@/pages/Cardapios/Cardapios';
+import Contratos from '@/pages/Contratos/Contratos';
 
 function PrivateRoute() {
   const { authenticated, loading } = useAuth();
@@ -49,6 +51,8 @@ export default function App() {
               <Route path={ROUTES.PERMISSOES} element={<Permissoes />} />
               <Route path={ROUTES.FINANCEIRO} element={<Financeiro />} />
               <Route path={ROUTES.TAREFAS} element={<Tarefas />} />
+              <Route path={ROUTES.CARDAPIOS} element={<Cardapios />} />
+              <Route path={ROUTES.CONTRATOS} element={<Contratos />} />
               <Route path={ROUTES.USUARIO} element={<MinhaConta />} />
             </Route>
           </Route>

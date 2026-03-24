@@ -1,0 +1,529 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.page {
+  padding: $spacing-2xl $spacing-xl;
+  animation: fadeIn 0.4s ease;
+
+  @include mobile { padding: $spacing-md; }
+}
+
+.header {
+  @include flex-between;
+  margin-bottom: $spacing-2xl;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin-top: 6px;
+}
+
+// Controls
+.controls {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 9px 12px 9px 36px;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  transition: border-color $transition-fast;
+
+  &::placeholder { color: $text-muted; }
+  &:focus { outline: none; border-color: $border-accent; }
+}
+
+.select {
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 9px 12px;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  cursor: pointer;
+
+  &:focus { outline: none; border-color: $border-accent; }
+}
+
+// Table
+.tableWrap {
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.tableHead {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr) 140px 140px;
+  padding: 10px $spacing-lg 10px 52px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid $border;
+  gap: $spacing-md;
+
+  @include tablet { grid-template-columns: minmax(0, 2fr) 140px 140px; }
+  @include mobile { display: none; }
+}
+
+.thCell {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+// Contract rows
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr) 140px 140px;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid $border;
+  transition: background $transition-fast;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: rgba(255,255,255,0.02); }
+
+  @include tablet { grid-template-columns: minmax(0, 2fr) 140px 140px; }
+  @include mobile { display: flex; flex-direction: column; align-items: stretch; gap: $spacing-sm; padding: $spacing-md; }
+}
+
+// Cell: client info (col 1)
+.cellMain {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.cellIcon {
+  width: 36px;
+  height: 36px;
+  background: rgba($accent, 0.08);
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $accent;
+  flex-shrink: 0;
+}
+
+.cellBody {
+  min-width: 0;
+  flex: 1;
+}
+
+.cellRef {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  font-family: monospace;
+  margin-bottom: 2px;
+}
+
+.cellClient {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  @include text-ellipsis;
+}
+
+.cellDesc {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin-top: 2px;
+  @include text-ellipsis;
+}
+
+// Cell: event + dates (col 2)
+.cellMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  @include tablet { display: none; }
+  @include mobile { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; }
+}
+
+.cellEvent {
+  display: inline-flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  color: $accent;
+  background: rgba($accent, 0.08);
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  @include text-ellipsis;
+  max-width: 100%;
+}
+
+.cellDates {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.dateSep {
+  color: $text-muted;
+  opacity: 0.5;
+}
+
+// Cell: value (col 3)
+.cellValue {
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  letter-spacing: -0.3px;
+
+  @include mobile { font-size: $font-size-lg; }
+}
+
+// Cell: actions (col 4)
+.cellActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+
+  @include mobile { justify-content: flex-start; padding-top: $spacing-sm; border-top: 1px solid $border; }
+}
+
+// Mobile row header
+.rowMobileTop {
+  display: none;
+
+  @include mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.rowMobileMeta {
+  display: none;
+
+  @include mobile {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+  }
+}
+
+.formSectionLabel {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $accent;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding-bottom: $spacing-xs;
+  border-bottom: 1px solid $border;
+  margin-top: $spacing-sm;
+
+  &:first-child { margin-top: 0; }
+}
+
+.empty {
+  text-align: center;
+  padding: $spacing-3xl;
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+// Buttons
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: 10px $spacing-md;
+  background: $accent;
+  color: #0a0f1e;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  border: none;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover { background: $accent-hover; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btnView {
+  padding: 6px 10px;
+  background: rgba(59,130,246,0.1);
+  border: none;
+  border-radius: $radius-xs;
+  color: #60a5fa;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  transition: background $transition-fast;
+  white-space: nowrap;
+
+  &:hover { background: rgba(59,130,246,0.2); }
+}
+
+.btnEdit {
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid $border;
+  border-radius: $radius-xs;
+  color: $text-secondary;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover { background: rgba(255,255,255,0.08); color: $text-primary; }
+}
+
+.btnDelete {
+  padding: 6px 10px;
+  background: rgba(239,68,68,0.08);
+  border: none;
+  border-radius: $radius-xs;
+  color: #f87171;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  transition: background $transition-fast;
+  white-space: nowrap;
+
+  &:hover { background: rgba(239,68,68,0.15); }
+}
+
+.btnCancel {
+  padding: 10px $spacing-md;
+  background: none;
+  border: none;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  cursor: pointer;
+
+  &:hover { color: $text-primary; }
+}
+
+// Modal
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: $spacing-md;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: $shadow-lg;
+}
+
+.preview {
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: $shadow-lg;
+}
+
+.modalHeader {
+  @include flex-between;
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 0;
+  background: $bg-secondary;
+  z-index: 1;
+}
+
+.modalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.modalClose {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: $text-muted;
+  border-radius: $radius-xs;
+  cursor: pointer;
+
+  &:hover { background: rgba(255,255,255,0.06); color: $text-primary; }
+}
+
+.modalBody {
+  padding: $spacing-xl;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.modalFooter {
+  @include flex-between;
+  padding: $spacing-md $spacing-xl;
+  border-top: 1px solid $border;
+}
+
+// Preview
+.previewBody {
+  padding: $spacing-xl;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.previewSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.previewRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm;
+  border-radius: $radius-xs;
+
+  &:nth-child(odd) { background: rgba(255,255,255,0.02); }
+
+  span { font-size: $font-size-sm; color: $text-muted; }
+  strong { font-size: $font-size-sm; color: $text-primary; }
+}
+
+.previewValue { color: $accent !important; font-size: $font-size-lg !important; }
+
+.previewDesc {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: $spacing-md;
+}
+
+.previewDescLabel {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: $spacing-sm;
+}
+
+.previewDescText {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  line-height: 1.6;
+}
+
+// Form
+.formGrid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.formGrid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input, .textarea {
+  background: $bg-input;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 10px 12px;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  transition: border-color $transition-fast;
+  font-family: inherit;
+
+  &::placeholder { color: $text-muted; }
+  &:focus { outline: none; border-color: $border-accent; }
+}
+
+.textarea { resize: vertical; }
+
+// Mobile: bottom-sheet modals
+@include mobile {
+  .overlay {
+    padding: $spacing-xs;
+    align-items: flex-end;
+  }
+
+  .modal, .preview {
+    border-radius: $radius-lg $radius-lg 0 0;
+    max-height: 88vh;
+  }
+
+  .modalBody { padding: $spacing-md; }
+  .modalFooter { padding: $spacing-sm $spacing-md; }
+}
