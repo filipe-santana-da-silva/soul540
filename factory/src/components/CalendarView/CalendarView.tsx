@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, isSameMonth, isSameDay, isToday,
-  format, addMonths, subMonths, addDays, subDays, parseISO,
+  format, addMonths, subMonths, addDays, subDays, parseISO, startOfDay,
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { PizzaEvent } from '@/types/Event';
@@ -371,8 +371,14 @@ export default function CalendarView({ events }: Props) {
     return eachDayOfInterval({ start, end });
   }, [currentMonth]);
 
-  const eventsForDay = (day: Date) =>
-    events.filter((e) => isSameDay(parseISO(e.date), day));
+  const eventsForDay = (day: Date) => {
+    const d = startOfDay(day);
+    return events.filter((e) => {
+      const start = startOfDay(parseISO(e.date));
+      const end = e.endDate ? startOfDay(parseISO(e.endDate)) : start;
+      return d >= start && d <= end;
+    });
+  };
 
   const dayEvents = useMemo(() => eventsForDay(selectedDay), [events, selectedDay]);
 
@@ -445,15 +451,30 @@ export default function CalendarView({ events }: Props) {
                   <div className={styles.pills}>
                     {de.slice(0, 3).map((ev) => {
                       const c = getEventColor(ev);
+                      const isStart = isSameDay(parseISO(ev.date), day);
+                      const isEnd = !ev.endDate || isSameDay(parseISO(ev.endDate), day);
+                      const isMulti = ev.endDate && !isSameDay(parseISO(ev.date), parseISO(ev.endDate));
+                      const radius = !isMulti ? '4px'
+                        : isStart && isEnd ? '4px'
+                        : isStart ? '4px 0 0 4px'
+                        : isEnd ? '0 4px 4px 0'
+                        : '0';
                       return (
                         <div
                           key={ev.id}
                           className={styles.pill}
-                          style={{ background: c.bg, color: c.text, borderColor: c.border }}
+                          style={{
+                            background: c.bg,
+                            color: c.text,
+                            borderColor: c.border,
+                            borderRadius: radius,
+                            ...(isMulti && !isStart ? { marginLeft: -6, paddingLeft: 4 } : {}),
+                            ...(isMulti && !isEnd ? { marginRight: -6, paddingRight: 4 } : {}),
+                          }}
                           title={ev.name}
                           onClick={(e) => openEvent(ev, e)}
                         >
-                          {ev.name}
+                          {isStart ? ev.name : '\u00A0'}
                         </div>
                       );
                     })}
