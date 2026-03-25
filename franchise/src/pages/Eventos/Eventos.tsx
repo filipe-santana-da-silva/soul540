@@ -533,6 +533,8 @@ return (
                       )) : <span style={{ color: 'var(--text-muted, #666)', fontSize: 13 }}>Selecionar cardápios...</span>}
                     </div>
                     {showMenuDropdown && (
+                      <>
+                      <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setShowMenuDropdown(false)} />
                       <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#131929', border: '1px solid #2a3352', borderRadius: 8, padding: 8, marginTop: 4, maxHeight: 200, overflowY: 'auto' }}>
                         {availableMenus.map(name => {
                           const selected = form.menu.split(',').map(s => s.trim()).includes(name);
@@ -548,6 +550,7 @@ return (
                           );
                         })}
                       </div>
+                      </>
                     )}
                   </div>
                 </div>
