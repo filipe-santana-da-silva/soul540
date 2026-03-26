@@ -53,17 +53,19 @@ const ALL_PAGES = [
   { group: 'Sistema', items: [
     { key: 'chat', label: 'Chat IA' },
     { key: 'usuario', label: 'Minha Conta' },
+    { key: 'permissoes', label: 'Permissões' },
   ]},
 ];
 
 const ALL_KEYS = ALL_PAGES.flatMap(g => g.items.map(i => i.key));
 
-const emptyForm = { name: '', email: '', password: '', isAdmin: false };
+const emptyForm = { name: '', email: '', password: '', isAdmin: false, unit: 'main' };
 
 export default function Permissoes() {
   const [users, setUsers] = useState<AppUser[]>([]);
   const [selected, setSelected] = useState<AppUser | null>(null);
   const [draftPerms, setDraftPerms] = useState<string[]>([]);
+  const [draftIsAdmin, setDraftIsAdmin] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -78,6 +80,7 @@ export default function Permissoes() {
   const selectUser = (u: AppUser) => {
     setSelected(u);
     setDraftPerms([...u.permissions]);
+    setDraftIsAdmin(u.isAdmin);
   };
 
   const togglePerm = (key: string) => {
@@ -96,11 +99,12 @@ export default function Permissoes() {
     const res = await fetch(`/api/users/${selected.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ permissions: draftPerms }),
+      body: JSON.stringify({ permissions: draftPerms, isAdmin: draftIsAdmin }),
     });
     const updated = await res.json();
     setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
     setSelected(updated);
+    setDraftIsAdmin(updated.isAdmin);
     setSaving(false);
   };
 
@@ -109,7 +113,7 @@ export default function Permissoes() {
     const res = await fetch('/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, permissions: form.isAdmin ? ALL_KEYS : [] }),
+      body: JSON.stringify({ ...form, unit: form.unit, permissions: form.isAdmin ? [...ALL_KEYS, 'permissoes'] : [] }),
     });
     const created = await res.json();
     setUsers(prev => [...prev, created]);
@@ -201,6 +205,22 @@ export default function Permissoes() {
             </div>
           ) : (
             <>
+              <label className={styles.adminToggleRow}>
+                <input
+                  type="checkbox"
+                  checked={draftIsAdmin}
+                  onChange={(e) => {
+                    setDraftIsAdmin(e.target.checked);
+                    if (e.target.checked) {
+                      setDraftPerms([...ALL_KEYS, 'permissoes']);
+                    }
+                  }}
+                />
+                <span className={styles.adminToggleLabel}>
+                  Administrador
+                  <small> — acesso total + tela de Permissões</small>
+                </span>
+              </label>
               <div className={styles.permHeader}>
                 <div>
                   <p className={styles.permTitle}>Permissões de {selected.name}</p>
@@ -267,6 +287,14 @@ export default function Permissoes() {
                 <input type="checkbox" checked={form.isAdmin} onChange={e => setForm({ ...form, isAdmin: e.target.checked })} />
                 <span>Administrador (acesso total)</span>
               </label>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Sistema</label>
+                <select className={styles.input} value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })}>
+                  <option value="main">Principal</option>
+                  <option value="franchise">Franquia</option>
+                  <option value="factory">Fábrica</option>
+                </select>
+              </div>
             </div>
             <div className={styles.modalFooter}>
               <button className={styles.btnCancel} onClick={() => setShowModal(false)}>Cancelar</button>

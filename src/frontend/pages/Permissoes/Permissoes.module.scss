@@ -61,3 +61,32 @@
 .input { padding: 10px $spacing-md; background: $bg-card; border: 1px solid $border; border-radius: $radius-sm; color: $text-primary; font-size: $font-size-sm; transition: all $transition-base; &::placeholder { color: $text-muted; } &:focus { outline: none; border-color: $accent; box-shadow: 0 0 0 3px rgba($accent, 0.1); } }
 .checkboxLabel { display: flex; align-items: center; gap: $spacing-sm; font-size: $font-size-sm; color: $text-secondary; cursor: pointer; input { width: 16px; height: 16px; accent-color: $accent; cursor: pointer; } }
 .deleteMsg { font-size: $font-size-sm; color: $text-secondary; line-height: 1.6; strong { color: $text-primary; } }
+
+.adminToggleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 16px;
+  border-bottom: 1px solid $border;
+  margin-bottom: 8px;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: $accent;
+    cursor: pointer;
+  }
+}
+
+.adminToggleLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+
+  small {
+    font-weight: $font-weight-normal;
+    color: $text-muted;
+    font-size: $font-size-xs;
+  }
+}
