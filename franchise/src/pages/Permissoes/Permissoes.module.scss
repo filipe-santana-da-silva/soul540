@@ -77,3 +77,32 @@
 .infoSectionTitle { font-size: $font-size-sm; font-weight: $font-weight-semibold; color: $accent; text-transform: uppercase; letter-spacing: 0.4px; }
 .infoText { font-size: $font-size-sm; color: $text-secondary; line-height: 1.6; }
 .infoList { margin: 0; padding-left: $spacing-lg; display: flex; flex-direction: column; gap: 4px; li { font-size: $font-size-sm; color: $text-secondary; line-height: 1.6; } }
+
+.adminToggleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 16px;
+  border-bottom: 1px solid $border;
+  margin-bottom: 8px;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: $accent;
+    cursor: pointer;
+  }
+}
+
+.adminToggleLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+
+  small {
+    font-weight: $font-weight-normal;
+    color: $text-muted;
+    font-size: $font-size-xs;
+  }
+}
