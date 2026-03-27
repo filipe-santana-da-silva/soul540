@@ -106,6 +106,7 @@ export default function Permissoes() {
     const updated = await res.json();
     setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
     setSelected(updated);
+    setDraftPerms([...updated.permissions]);
     setDraftIsAdmin(updated.isAdmin);
     setSaving(false);
   };
