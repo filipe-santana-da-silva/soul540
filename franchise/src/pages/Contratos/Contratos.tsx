@@ -4,6 +4,7 @@ import { apiFetch } from '@/lib/api';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import styles from './Contratos.module.scss';
+import { SOUL540_MENUS } from '@/data/soul540Menus';
 
 import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import ContractDocument, { type Contract } from './ContractDocument';
@@ -39,6 +40,7 @@ type FormData = {
   endDate: string;
   paymentConditions: string;
   terms: string;
+  menuId: string;
 };
 
 const emptyForm: FormData = {
@@ -48,6 +50,7 @@ const emptyForm: FormData = {
   additionalServices: '', value: '', minGuests: '', serviceType: 'self service e coquetel',
   drinksDescription: '', cancellationDays: '30', pizzaTeam: '', drinksTeam: '',
   startDate: '', endDate: '', paymentConditions: '', terms: '',
+  menuId: '',
 };
 
 function formatDate(iso: string) {
@@ -109,6 +112,7 @@ export default function Contratos() {
       endDate: c.endDate || '',
       paymentConditions: c.paymentConditions || '',
       terms: c.terms || '',
+      menuId: c.menuId || '',
     });
     setEditingId(c.id);
     setShowModal(true);
@@ -142,6 +146,7 @@ export default function Contratos() {
       endDate: form.endDate || '',
       paymentConditions: form.paymentConditions || '',
       terms: form.terms || '',
+      menuId: form.menuId || '',
     };
     if (editingId) {
       const res = await apiFetch(`/api/contracts/${editingId}`, { method: 'PUT', body: JSON.stringify(data) });
@@ -327,6 +332,15 @@ export default function Contratos() {
               {/* Serviço */}
               <div className={styles.formSectionLabel}>Serviço</div>
               <div className={styles.formGrid2}>
+                <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                  <label className={styles.label}>Cardápio do Evento (Anexo I)</label>
+                  <select className={styles.input} value={form.menuId} onChange={(e) => setForm({ ...form, menuId: e.target.value })}>
+                    <option value="">Cardápio Padrão (genérico)</option>
+                    {SOUL540_MENUS.map((m) => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                  </select>
+                </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Sistema de Servico</label>
                   <input className={styles.input} value={form.serviceType} onChange={(e) => setForm({ ...form, serviceType: e.target.value })} placeholder="self service e coquetel" />
