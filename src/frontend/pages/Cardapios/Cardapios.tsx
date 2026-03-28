@@ -73,7 +73,7 @@ async function generateMenuPdf(menu: StaticMenu) {
   `;
 
   const container = document.createElement('div');
-  container.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;';
+  container.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;color-scheme:light;color:#1a1a1a;';
   container.innerHTML = html;
   document.body.appendChild(container);
 
