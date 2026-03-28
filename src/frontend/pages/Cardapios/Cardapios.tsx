@@ -37,7 +37,7 @@ async function generateMenuPdf(menu: StaticMenu) {
         .brand span { color: #f59e0b; }
         .tagline { font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 2px; margin: 3px 0 14px; }
         .menu-title-wrap { display: inline-block; background: #fff; padding: 6px 28px; border-radius: 2px; border: 3px solid #8b1a1a; }
-        .menu-title { font-size: 20px; font-weight: 800; color: #8b1a1a; text-transform: uppercase; letter-spacing: 3px; }
+        .menu-title { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 3px; margin: 8px 0 4px; }
         .menu-sub { font-size: 11px; color: rgba(255,255,255,0.4); font-style: italic; margin-top: 8px; }
         .body { padding: 24px 40px 32px; }
         .section { margin-bottom: 24px; }
@@ -58,7 +58,7 @@ async function generateMenuPdf(menu: StaticMenu) {
       <div class="doc-header">
         <div class="brand">Soul<span>540</span> Pizzas</div>
         <div class="tagline">· artesanal food ·</div>
-        <div style="display:inline-block;background-color:#8b1a1a;padding:6px 28px;border-radius:2px;font-size:20px;font-weight:800;color:#ffffff;letter-spacing:3px;">${menu.name.toUpperCase()}</div>
+        <div class="menu-title">${menu.name.toUpperCase()}</div>
         <div class="menu-sub">${menu.tagline}</div>
       </div>
       <div class="body">
