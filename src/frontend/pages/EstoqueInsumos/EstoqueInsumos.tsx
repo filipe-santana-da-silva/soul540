@@ -315,7 +315,7 @@ export default function EstoqueInsumos() {
                   <input className={styles.input} type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: e.target.value })} placeholder="0" />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Unidade</label>
+                  <label className={styles.label}>Un.</label>
                   <select className={styles.input} value={form.measureUnit} onChange={(e) => setForm({ ...form, measureUnit: e.target.value })}>
                     <option value="kg">kg</option>
                     <option value="g">g</option>
