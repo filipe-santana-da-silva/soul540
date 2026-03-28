@@ -7,11 +7,10 @@ interface Message {
   content: string;
 }
 
-const SpeechRecognitionAPI =
-  (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition })
-    .SpeechRecognition ||
-  (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition })
-    .webkitSpeechRecognition;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SpeechRecognitionAPI: (new () => any) | undefined =
+  (window as any).SpeechRecognition ||
+  (window as any).webkitSpeechRecognition;
 
 export default function Chat() {
   const { refreshFinances, refreshTasks } = useApp();
@@ -22,7 +21,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [listening, setListening] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -118,7 +117,7 @@ export default function Chat() {
     rec.continuous = false;
     rec.interimResults = false;
 
-    rec.onresult = (event: SpeechRecognitionEvent) => {
+    rec.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setInput(prev => prev ? `${prev} ${transcript}` : transcript);
     };
