@@ -307,14 +307,10 @@ export default function EstoqueInsumos() {
                   </select>
                 </div>
               </div>
-              <div className={styles.formGrid3}>
+              <div className={styles.formGrid2}>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Quantidade</label>
                   <input className={styles.input} type="number" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} placeholder="0" />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Estoque Min.</label>
-                  <input className={styles.input} type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: e.target.value })} placeholder="0" />
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Unidade</label>
@@ -327,6 +323,10 @@ export default function EstoqueInsumos() {
                     <option value="cx">cx</option>
                   </select>
                 </div>
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Estoque Min.</label>
+                <input className={styles.input} type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: e.target.value })} placeholder="0" />
               </div>
               <div className={styles.formGrid2}>
                 <div className={styles.formGroup}>
