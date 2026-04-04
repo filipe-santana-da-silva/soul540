@@ -68,11 +68,14 @@ const router = Router();
 
 router.get('/', async (req, res) => {
   if (isFromFactory(req)) {
-    const items = await FactoryFinance.find({});
+    const items = await FactoryFinance.find({ source: 'factory' });
     return res.json(items);
   }
-  const Model = isFromFranchise(req) ? FranchiseFinance : Finance;
-  const items = await Model.find({});
+  if (isFromFranchise(req)) {
+    const items = await FranchiseFinance.find({ source: 'franchise' });
+    return res.json(items);
+  }
+  const items = await Finance.find({ source: 'main' });
   res.json(items);
 });
 
