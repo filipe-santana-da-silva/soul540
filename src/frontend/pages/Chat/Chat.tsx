@@ -114,11 +114,11 @@ export default function Chat() {
 
     const rec = new SpeechRecognitionAPI();
     rec.lang = 'pt-BR';
-    rec.continuous = false;
+    rec.continuous = true;
     rec.interimResults = false;
 
     rec.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
+      const transcript = event.results[event.results.length - 1][0].transcript;
       setInput(prev => prev ? `${prev} ${transcript}` : transcript);
     };
 
@@ -126,9 +126,11 @@ export default function Chat() {
       setListening(false);
       recognitionRef.current = null;
     };
-    rec.onerror = () => {
-      setListening(false);
-      recognitionRef.current = null;
+    rec.onerror = (event: any) => {
+      if (event.error !== 'no-speech') {
+        setListening(false);
+        recognitionRef.current = null;
+      }
     };
 
     recognitionRef.current = rec;
