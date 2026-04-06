@@ -60,6 +60,7 @@ export default function Financeiro() {
   const [costFilter, setCostFilter] = useState<CostFilter>('all');
   const [dataScope, setDataScope] = useState<DataScope>('main');
   const [franchiseFinances, setFranchiseFinances] = useState<typeof finances>([]);
+  const [franchiseEvents, setFranchiseEvents] = useState<typeof events>([]);
 
   // Table filters
   const [filterType, setFilterType] = useState<FilterType>('all');
@@ -77,12 +78,13 @@ export default function Financeiro() {
   const [formDate, setFormDate] = useState(new Date().toISOString().split('T')[0]);
   const [formStatus, setFormStatus] = useState<FinanceStatus>('pending');
 
-  // Fetch franchise finances when scope is combined
+  // Fetch franchise finances and events when scope includes franchise
   useEffect(() => {
-    if (dataScope === 'main') { setFranchiseFinances([]); return; }
+    if (dataScope === 'main') { setFranchiseFinances([]); setFranchiseEvents([]); return; }
     const token = localStorage.getItem('soul540_token');
     const headers: HeadersInit = { 'X-System': 'franchise', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
     fetch('/api/finances', { headers }).then((r) => r.json()).then(setFranchiseFinances).catch(() => {});
+    fetch('/api/events', { headers }).then((r) => r.json()).then(setFranchiseEvents).catch(() => {});
   }, [dataScope]);
 
   const activeFinances = useMemo(() => {
@@ -90,6 +92,12 @@ export default function Financeiro() {
     if (dataScope === 'combined') return [...finances, ...franchiseFinances];
     return finances;
   }, [finances, franchiseFinances, dataScope]);
+
+  const activeEvents = useMemo(() => {
+    if (dataScope === 'franchise') return franchiseEvents;
+    if (dataScope === 'combined') return [...events, ...franchiseEvents];
+    return events;
+  }, [events, franchiseEvents, dataScope]);
 
   // === DATA COMPUTATIONS ===
 
@@ -203,7 +211,7 @@ export default function Financeiro() {
       if (filterType !== 'all' && f.type !== filterType) return false;
       if (search) {
         const q = search.toLowerCase();
-        const event = events.find((e) => e.id === f.eventId);
+        const event = activeEvents.find((e) => e.id === f.eventId);
         return (
           f.description.toLowerCase().includes(q) ||
           f.category.toLowerCase().includes(q) ||
@@ -212,11 +220,11 @@ export default function Financeiro() {
       }
       return true;
     }).sort((a, b) => b.date.localeCompare(a.date));
-  }, [activeFinances, filterType, filterMonth, search, events]);
+  }, [activeFinances, filterType, filterMonth, search, activeEvents]);
 
   // Events with budget joined with their finance entry
   const eventsWithBudget = useMemo(() => {
-    return events
+    return activeEvents
       .filter((e) => e.budget > 0)
       .map((e) => ({
         event: e,
@@ -225,7 +233,7 @@ export default function Financeiro() {
         ),
       }))
       .sort((a, b) => b.event.date.localeCompare(a.event.date));
-  }, [events, activeFinances]);
+  }, [activeEvents, activeFinances]);
 
   const totalContracted = useMemo(
     () => eventsWithBudget.reduce((acc, { event }) => acc + event.budget, 0),
@@ -236,6 +244,17 @@ export default function Financeiro() {
       .filter(({ finance }) => finance?.status === 'received')
       .reduce((acc, { event }) => acc + event.budget, 0),
     [eventsWithBudget],
+  );
+
+  const eventsWithFinalValue = useMemo(
+    () => activeEvents
+      .filter((e) => (e.finalValue ?? 0) > 0)
+      .sort((a, b) => b.date.localeCompare(a.date)),
+    [activeEvents],
+  );
+  const totalFinalValue = useMemo(
+    () => eventsWithFinalValue.reduce((acc, e) => acc + (e.finalValue || 0), 0),
+    [eventsWithFinalValue],
   );
 
   // === HANDLERS ===
@@ -438,25 +457,17 @@ export default function Financeiro() {
               <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Valores dos Agendamentos</h3>
               <div className={styles.agendamentosPills}>
                 <div className={styles.agendamentosPill}>
-                  <span className={styles.agendamentosPillLabel}>Contratado</span>
-                  <span className={styles.agendamentosPillValue}>{formatBRL(totalContracted)}</span>
-                </div>
-                <div className={styles.agendamentosPill}>
-                  <span className={styles.agendamentosPillLabel}>Recebido</span>
-                  <span className={`${styles.agendamentosPillValue} ${styles.green}`}>{formatBRL(totalReceived)}</span>
-                </div>
-                <div className={styles.agendamentosPill}>
-                  <span className={styles.agendamentosPillLabel}>Pendente</span>
-                  <span className={`${styles.agendamentosPillValue} ${styles.amber}`}>{formatBRL(totalContracted - totalReceived)}</span>
+                  <span className={styles.agendamentosPillLabel}>Total Final</span>
+                  <span className={`${styles.agendamentosPillValue} ${styles.green}`}>{formatBRL(totalFinalValue)}</span>
                 </div>
               </div>
             </div>
 
-            {eventsWithBudget.length === 0 ? (
-              <p className={styles.agendamentosEmpty}>Nenhum agendamento com valor cadastrado.</p>
+            {eventsWithFinalValue.length === 0 ? (
+              <p className={styles.agendamentosEmpty}>Nenhum agendamento com valor final cadastrado.</p>
             ) : (
               <div className={styles.agendamentosList}>
-                {eventsWithBudget.map(({ event, finance }) => (
+                {eventsWithFinalValue.map((event) => (
                   <div key={event.id} className={styles.agendamentoRow}>
                     <div className={styles.agendamentoInfo}>
                       <span className={styles.agendamentoName}>{event.name}</span>
@@ -465,19 +476,7 @@ export default function Financeiro() {
                       </span>
                     </div>
                     <div className={styles.agendamentoRight}>
-                      <span className={styles.agendamentoValue}>{formatBRL(event.budget)}</span>
-                      {finance ? (
-                        <select
-                          className={`${styles.agendamentoStatus} ${finance.status === 'received' ? styles.statusReceived : styles.statusPending}`}
-                          value={finance.status}
-                          onChange={(e) => handleEventFinanceStatus(finance.id, e.target.value as FinanceStatus)}
-                        >
-                          <option value="pending">Pendente</option>
-                          <option value="received">Recebido</option>
-                        </select>
-                      ) : (
-                        <span className={styles.agendamentoNoFinance}>—</span>
-                      )}
+                      <span className={`${styles.agendamentoValue} ${styles.green}`}>{formatBRL(event.finalValue || 0)}</span>
                     </div>
                   </div>
                 ))}
@@ -728,7 +727,7 @@ export default function Financeiro() {
 
       {/* ===== TAB: ESTIMADO x FINAL ===== */}
       {activeTab === 'valores' && (() => {
-        const eventsWithValues = events
+        const eventsWithValues = activeEvents
           .filter((e) => e.budget > 0 || (e.finalValue ?? 0) > 0)
           .sort((a, b) => b.date.localeCompare(a.date));
         const totalEstimado = eventsWithValues.reduce((acc, e) => acc + (e.budget || 0), 0);
@@ -832,7 +831,7 @@ export default function Financeiro() {
                   onChange={(e) => setFormEventId(e.target.value)}
                 >
                   <option value="">Selecione...</option>
-                  {events.map((evt) => (
+                  {activeEvents.map((evt) => (
                     <option key={evt.id} value={evt.id}>{evt.name}</option>
                   ))}
                 </select>
