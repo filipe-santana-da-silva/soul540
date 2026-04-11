@@ -429,6 +429,24 @@
   }
 }
 
+.btnExport {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px $spacing-md;
+  background: rgba($accent, 0.08);
+  border: 1px solid rgba($accent, 0.25);
+  border-radius: $radius-sm;
+  color: $accent;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all $transition-fast;
+  flex-shrink: 0;
+  &:hover { background: rgba($accent, 0.15); border-color: rgba($accent, 0.4); }
+}
+
 // Table
 .tableWrap {
   overflow-x: auto;

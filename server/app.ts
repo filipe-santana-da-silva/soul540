@@ -1,3 +1,4 @@
+import 'express-async-errors';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -65,5 +66,13 @@ app.get(['/fabrica', '/fabrica/*'], (_req, res) => res.sendFile(path.join(factor
 const mainDist = path.join(process.cwd(), 'dist');
 app.use(express.static(mainDist));
 app.get('*', (_req, res) => res.sendFile(path.join(mainDist, 'index.html')));
+
+// Global error handler — must be 4-arg; express-async-errors ensures async throws reach here
+app.use((err: any, req: any, res: any, _next: any) => {
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || 'Erro interno do servidor';
+  console.error(`[${new Date().toISOString()}] ${req.method} ${req.path} → ${status}: ${message}`);
+  if (!res.headersSent) res.status(status).json({ error: message });
+});
 
 export default app;

@@ -50,6 +50,13 @@ const FactoryFinanceSchema = new mongoose.Schema(
   { collection: 'factoryfinances', toJSON: { virtuals: true, versionKey: false }, id: true },
 );
 
+FinanceSchema.index({ source: 1, date: -1 });
+FinanceSchema.index({ eventId: 1 });
+FranchiseFinanceSchema.index({ source: 1, date: -1 });
+FranchiseFinanceSchema.index({ eventId: 1 });
+FactoryFinanceSchema.index({ source: 1, date: -1 });
+FactoryFinanceSchema.index({ eventId: 1 });
+
 export const Finance = mongoose.models.Finance || mongoose.model('Finance', FinanceSchema);
 export const FranchiseFinance = mongoose.models.FranchiseFinance || mongoose.model('FranchiseFinance', FranchiseFinanceSchema);
 export const FactoryFinance = mongoose.models.FactoryFinance || mongoose.model('FactoryFinance', FactoryFinanceSchema);
@@ -98,11 +105,24 @@ router.post('/', validate(createFinanceSchema), async (req, res) => {
   res.status(201).json(finance);
 });
 
+const STATUS_LABELS: Record<string, string> = { pending: 'Pendente', paid: 'Pago', received: 'Recebido' };
+
 router.put('/:id', validate(updateFinanceSchema), async (req, res) => {
   const found = await findFinanceInBothCollections(req.params.id);
   if (!found) return res.status(404).json({ error: 'Not found' });
+  const oldDoc = found.doc;
   const finance = await found.model.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  await logAudit({ req, action: 'update', resource: 'finances', resourceId: req.params.id, description: `Atualizou lançamento: ${finance?.description} (R$ ${finance?.amount})` });
+  // Detect status-only change to produce a specific audit message
+  const changedKeys = Object.keys(req.body);
+  let desc: string;
+  if (changedKeys.length === 1 && changedKeys[0] === 'status') {
+    const from = STATUS_LABELS[(oldDoc as any).status] || (oldDoc as any).status;
+    const to   = STATUS_LABELS[req.body.status] || req.body.status;
+    desc = `Alterou status de "${from}" para "${to}": ${finance?.description}`;
+  } else {
+    desc = `Atualizou lançamento: ${finance?.description} (R$ ${finance?.amount})`;
+  }
+  await logAudit({ req, action: 'update', resource: 'finances', resourceId: req.params.id, description: desc });
   res.json(finance);
 });
 

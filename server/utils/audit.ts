@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { getTenantUnit } from '../middleware/tenant';
 
 const AuditLogSchema = new Schema({
   userId:      { type: String, default: '' },
@@ -10,6 +11,10 @@ const AuditLogSchema = new Schema({
   description: { type: String, required: true },
   timestamp:   { type: Date, default: () => new Date() },
 }, { collection: 'auditlogs', toJSON: { virtuals: true, versionKey: false } });
+
+AuditLogSchema.index({ timestamp: -1 });
+AuditLogSchema.index({ resource: 1, timestamp: -1 });
+AuditLogSchema.index({ userUnit: 1, timestamp: -1 });
 
 export const AuditLog = mongoose.models.AuditLog || mongoose.model('AuditLog', AuditLogSchema);
 
@@ -24,10 +29,14 @@ interface AuditParams {
 export async function logAudit({ req, action, resource, resourceId, description }: AuditParams) {
   try {
     const u = (req as any).user;
+    // Use the effective tenant unit (which system the action was performed on),
+    // not the user's home unit — this correctly tracks franchise/factory actions
+    // done by a main admin.
+    const userUnit = getTenantUnit(req) || u?.unit || 'main';
     await AuditLog.create({
       userId:     u?._id?.toString() || u?.userId || '',
       userName:   u?.name || 'Desconhecido',
-      userUnit:   u?.unit || 'main',
+      userUnit,
       action,
       resource,
       resourceId: resourceId || '',

@@ -81,10 +81,9 @@ export default function Financeiro() {
   // Fetch franchise finances and events when scope includes franchise
   useEffect(() => {
     if (dataScope === 'main') { setFranchiseFinances([]); setFranchiseEvents([]); return; }
-    const token = localStorage.getItem('soul540_token');
-    const headers: HeadersInit = { 'X-System': 'franchise', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
-    fetch('/api/finances', { headers }).then((r) => r.json()).then(setFranchiseFinances).catch(() => {});
-    fetch('/api/events', { headers }).then((r) => r.json()).then(setFranchiseEvents).catch(() => {});
+    const headers: HeadersInit = { 'X-System': 'franchise' };
+    fetch('/api/finances', { headers, credentials: 'include' }).then((r) => r.json()).then(setFranchiseFinances).catch(() => {});
+    fetch('/api/events',   { headers, credentials: 'include' }).then((r) => r.json()).then(setFranchiseEvents).catch(() => {});
   }, [dataScope]);
 
   const activeFinances = useMemo(() => {
@@ -261,6 +260,29 @@ export default function Financeiro() {
 
   const handleEventFinanceStatus = async (financeId: string, status: FinanceStatus) => {
     await updateFinance(financeId, { status });
+  };
+
+  const exportCSV = () => {
+    const typeLabel: Record<string, string> = { revenue: 'Receita', cost: 'Custo' };
+    const stLabel: Record<string, string> = { pending: 'Pendente', paid: 'Pago', received: 'Recebido' };
+    const rows = [
+      ['Data', 'Tipo', 'Categoria', 'Descrição', 'Status', 'Valor (R$)'].join(';'),
+      ...filtered.map(f => [
+        f.date,
+        typeLabel[f.type] || f.type,
+        CATEGORY_LABELS[f.category] || f.category,
+        `"${f.description.replace(/"/g, '""')}"`,
+        stLabel[f.status] || f.status,
+        f.amount.toFixed(2).replace('.', ','),
+      ].join(';')),
+    ];
+    const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `financeiro-${filterMonth === 'all' ? 'todos' : filterMonth}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const resetForm = () => {
@@ -656,6 +678,10 @@ export default function Financeiro() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            <button className={styles.btnExport} onClick={exportCSV} title="Exportar lançamentos filtrados para CSV">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar CSV
+            </button>
           </div>
 
           {/* Table */}
