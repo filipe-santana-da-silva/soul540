@@ -2,6 +2,8 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { UserModel } from './auth';
 import { getTenantUnit } from '../middleware/tenant';
+import { validate } from '../middleware/validate';
+import { createUserSchema, updateUserSchema } from '../schemas/users';
 
 const router = Router();
 
@@ -14,19 +16,16 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/users
-router.post('/', async (req, res) => {
+router.post('/', validate(createUserSchema), async (req, res) => {
   const { name, email, password, isAdmin, permissions, unit: bodyUnit } = req.body;
-  if (!name?.trim() || !email?.trim() || !password) {
-    return res.status(400).json({ error: 'name, email e password obrigatorios' });
-  }
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await UserModel.create({ name: name.trim(), email: email.toLowerCase().trim(), passwordHash, isAdmin: !!isAdmin, permissions: permissions || [], unit: bodyUnit || getTenantUnit(req) });
+  const user = await UserModel.create({ name, email: email.toLowerCase().trim(), passwordHash, isAdmin, permissions, unit: bodyUnit || getTenantUnit(req) });
   const { passwordHash: _, ...safe } = user.toJSON();
   res.status(201).json(safe);
 });
 
 // PUT /api/users/:id
-router.put('/:id', async (req, res) => {
+router.put('/:id', validate(updateUserSchema), async (req, res) => {
   const user = await UserModel.findById(req.params.id);
   if (!user) return res.status(404).json({ error: 'not found' });
   if ((req as any).user?.role !== 'admin' && user.unit !== getTenantUnit(req)) {

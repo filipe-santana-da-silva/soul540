@@ -2,6 +2,8 @@ import { Router } from 'express';
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { validate } from '../middleware/validate';
+import { loginSchema } from '../schemas/auth';
 
 const UserSchema = new Schema({
   name: { type: String, required: true },
@@ -17,7 +19,7 @@ export const UserModel = mongoose.models.User || mongoose.model('User', UserSche
 const router = Router();
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', validate(loginSchema), async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'email e senha obrigatorios' });
 

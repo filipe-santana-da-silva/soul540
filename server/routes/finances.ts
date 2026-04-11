@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { getTenantUnit } from '../middleware/tenant';
+import { validate } from '../middleware/validate';
+import { createFinanceSchema, updateFinanceSchema } from '../schemas/finances';
 
 const FinanceSchema = new mongoose.Schema(
   {
@@ -79,7 +81,7 @@ router.get('/', async (req, res) => {
   res.json(items);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', validate(createFinanceSchema), async (req, res) => {
   if (isFromFactory(req)) {
     const finance = await FactoryFinance.create({ ...req.body, source: 'factory' });
     return res.status(201).json(finance);
@@ -92,7 +94,7 @@ router.post('/', async (req, res) => {
   res.status(201).json(finance);
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', validate(updateFinanceSchema), async (req, res) => {
   const found = await findFinanceInBothCollections(req.params.id);
   if (!found) return res.status(404).json({ error: 'Not found' });
   const finance = await found.model.findByIdAndUpdate(req.params.id, req.body, { new: true });
