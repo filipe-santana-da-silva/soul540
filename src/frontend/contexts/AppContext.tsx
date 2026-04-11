@@ -8,8 +8,6 @@ import { apiFetch } from '@frontend/lib/api';
 
 interface AppContextData {
   events: PizzaEvent[];
-  hasMoreEvents: boolean;
-  loadMoreEvents: () => void;
   finances: FinanceEntry[];
   invoices: Invoice[];
   tasks: Task[];
@@ -33,36 +31,18 @@ const AppContext = createContext<AppContextData>({} as AppContextData);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<PizzaEvent[]>([]);
-  const [eventsPage, setEventsPage] = useState(1);
-  const [hasMoreEvents, setHasMoreEvents] = useState(false);
   const [finances, setFinances] = useState<FinanceEntry[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const headers: HeadersInit = { 'X-System': 'main' };
 
-  const loadEvents = useCallback((page = 1, append = false) => {
-    apiFetch(`/api/events?page=${page}&limit=100`, { headers })
-      .then(r => r.json())
-      .then((res) => {
-        const data: PizzaEvent[] = res.data ?? res;
-        setEvents(prev => append ? [...prev, ...data] : data);
-        setHasMoreEvents(res.hasMore ?? false);
-        setEventsPage(page);
-      })
-      .catch((err) => console.error('Falha ao carregar eventos:', err));
-  }, []);
-
-  const loadMoreEvents = useCallback(() => {
-    loadEvents(eventsPage + 1, true);
-  }, [eventsPage, loadEvents]);
-
   const loadData = useCallback(() => {
-    loadEvents(1, false);
+    apiFetch('/api/events', { headers }).then(r => r.json()).then(setEvents).catch((err) => console.error('Falha ao carregar dados:', err));
     apiFetch('/api/tasks', { headers }).then(r => r.json()).then(setTasks).catch((err) => console.error('Falha ao carregar dados:', err));
     apiFetch('/api/finances', { headers }).then(r => r.json()).then(setFinances).catch((err) => console.error('Falha ao carregar dados:', err));
     apiFetch('/api/invoices', { headers }).then(r => r.json()).then(setInvoices).catch((err) => console.error('Falha ao carregar dados:', err));
-  }, [loadEvents]);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -209,7 +189,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider
       value={{
-        events, hasMoreEvents, loadMoreEvents, finances, invoices, tasks,
+        events, finances, invoices, tasks,
         addFinance, updateFinance, deleteFinance,
         addInvoice, updateInvoice, deleteInvoice,
         addEvent, updateEvent, deleteEvent,

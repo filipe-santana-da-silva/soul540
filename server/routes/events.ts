@@ -170,39 +170,26 @@ router.get('/count', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
-  const page = Math.max(parseInt(req.query.page as string) || 1, 1);
-  const skip = (page - 1) * limit;
-
   if (isFromFactory(req)) {
     const [mainClosed, franchiseClosed, factoryEvents] = await Promise.all([
       Event.find({ status: { $ne: 'planning' } }).select(SLIM).sort({ date: -1 }),
       FranchiseEvent.find({ status: { $ne: 'planning' } }).select(SLIM).sort({ date: -1 }),
       FactoryEvent.find({}).select(SLIM).sort({ date: -1 }),
     ]);
-    const all = [...mainClosed, ...franchiseClosed, ...factoryEvents]
+    const merged = [...mainClosed, ...franchiseClosed, ...factoryEvents]
       .sort((a, b) => (a.date > b.date ? -1 : 1));
-    const total = all.length;
-    const data = all.slice(skip, skip + limit);
-    return res.json({ data, total, page, limit, hasMore: skip + limit < total });
+    return res.json(merged);
   }
   if (isFromFranchise(req)) {
-    const total = await FranchiseEvent.countDocuments({});
-    const events = await FranchiseEvent.find({}).select(SLIM).sort({ date: 1 }).skip(skip).limit(limit);
-    return res.json({ data: events, total, page, limit, hasMore: skip + limit < total });
+    const events = await FranchiseEvent.find({}).select(SLIM).sort({ date: 1 });
+    return res.json(events);
   }
-  const [mainTotal, franchiseTotal] = await Promise.all([
-    Event.countDocuments({}),
-    FranchiseEvent.countDocuments({}),
-  ]);
   const [main, franchise] = await Promise.all([
     Event.find({}).select(SLIM).sort({ date: 1 }),
     FranchiseEvent.find({}).select(SLIM).sort({ date: 1 }),
   ]);
-  const all = [...main, ...franchise].sort((a, b) => (a.date > b.date ? 1 : -1));
-  const total = mainTotal + franchiseTotal;
-  const data = all.slice(skip, skip + limit);
-  res.json({ data, total, page, limit, hasMore: skip + limit < total });
+  const merged = [...main, ...franchise].sort((a, b) => (a.date > b.date ? 1 : -1));
+  res.json(merged);
 });
 
 router.post('/', async (req, res) => {

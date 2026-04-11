@@ -695,9 +695,15 @@ export default function Financeiro() {
                     </td>
                     <td>{format(parseISO(entry.date), 'dd/MM/yy', { locale: ptBR })}</td>
                     <td>
-                      <Badge variant={statusColors[entry.status]}>
-                        {statusLabels[entry.status]}
-                      </Badge>
+                      <select
+                        className={`${styles.agendamentoStatus} ${entry.status === 'received' || entry.status === 'paid' ? styles.statusReceived : styles.statusPending}`}
+                        value={entry.status}
+                        onChange={(e) => handleEventFinanceStatus(entry.id, e.target.value as FinanceStatus)}
+                      >
+                        <option value="pending">Pendente</option>
+                        <option value="paid">Pago</option>
+                        <option value="received">Recebido</option>
+                      </select>
                     </td>
                     <td>
                       <span className={entry.type === 'revenue' ? styles.typeRevenue : styles.typeCost}>

@@ -124,7 +124,7 @@ function buildWhatsAppUrl(ev: PizzaEvent): string {
     `Data: ${dateStr}${ev.time ? ` às ${ev.time}` : ''}`,
     `Local: ${ev.location}${ev.outOfCity ? ' (fora da cidade)' : ''}`,
     `Convidados: ${ev.guestCount}`,
-    `Valor: R$ ${ev.budget.toLocaleString('pt-BR')}`,
+    `Valor: R$ ${(ev.finalValue && ev.finalValue > 0 ? ev.finalValue : ev.budget).toLocaleString('pt-BR')}`,
     ...(ev.notes ? [`Obs: ${ev.notes}`] : []),
   ];
   return `https://wa.me/55${digits}?text=${encodeURIComponent(lines.join('\n'))}`;
@@ -160,7 +160,7 @@ function EventCard({ ev, employeeMap, onView, onEdit, onDelete }: {
         </div>
         <div className={styles.cardRow}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          R$ {ev.budget.toLocaleString('pt-BR')}
+          R$ {(ev.finalValue && ev.finalValue > 0 ? ev.finalValue : ev.budget).toLocaleString('pt-BR')}
         </div>
         {ev.responsibleEmployeeId && (
           <div className={styles.cardRow}>
@@ -605,7 +605,7 @@ return (
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Funcionarios no Evento ({form.selectedEmployeeIds.length} selecionados)</label>
                   <div className={styles.checkList}>
-                    {employees.map((emp) => (
+                    {employees.filter((emp) => emp.status === 'ativo').map((emp) => (
                       <label key={emp.id} className={styles.checkItem} onClick={() => toggleEmployee(emp.id)}>
                         <input type="checkbox" checked={form.selectedEmployeeIds.includes(emp.id)} readOnly />
                         <span className={styles.checkLabel}>

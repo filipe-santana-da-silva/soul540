@@ -6,8 +6,6 @@ export type { InvoiceItem, InvoiceStatus, Invoice };
 
 interface AppContextData {
   events: PizzaEvent[];
-  hasMoreEvents: boolean;
-  loadMoreEvents: () => void;
   finances: FinanceEntry[];
   tasks: Task[];
   invoices: Invoice[];
@@ -28,30 +26,12 @@ const AppContext = createContext<AppContextData>({} as AppContextData);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<PizzaEvent[]>([]);
-  const [eventsPage, setEventsPage] = useState(1);
-  const [hasMoreEvents, setHasMoreEvents] = useState(false);
   const [finances, setFinances] = useState<FinanceEntry[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
 
-  const loadEvents = useCallback((page = 1, append = false) => {
-    apiFetch(`/api/events?page=${page}&limit=100`)
-      .then(r => r.json())
-      .then((res) => {
-        const data: PizzaEvent[] = res.data ?? res;
-        setEvents(prev => append ? [...prev, ...data] : data);
-        setHasMoreEvents(res.hasMore ?? false);
-        setEventsPage(page);
-      })
-      .catch((err) => console.error('Falha ao carregar eventos:', err));
-  }, []);
-
-  const loadMoreEvents = useCallback(() => {
-    loadEvents(eventsPage + 1, true);
-  }, [eventsPage, loadEvents]);
-
   useEffect(() => {
-    loadEvents(1, false);
+    apiFetch('/api/events').then(r => r.json()).then(setEvents).catch((err) => console.error('Falha ao carregar dados:', err));
     apiFetch('/api/tasks').then(r => r.json()).then(setTasks).catch((err) => console.error('Falha ao carregar dados:', err));
     apiFetch('/api/finances').then(r => r.json()).then(setFinances).catch((err) => console.error('Falha ao carregar dados:', err));
     apiFetch('/api/invoices').then(r => r.json()).then(setInvoices).catch((err) => console.error('Falha ao carregar dados:', err));
@@ -142,7 +122,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AppContext.Provider value={{ events, hasMoreEvents, loadMoreEvents, finances, tasks, invoices, addFinance, updateFinance, deleteFinance, addEvent, updateEvent, deleteEvent, addTask, updateTask, deleteTask, addInvoice, deleteInvoice }}>
+    <AppContext.Provider value={{ events, finances, tasks, invoices, addFinance, updateFinance, deleteFinance, addEvent, updateEvent, deleteEvent, addTask, updateTask, deleteTask, addInvoice, deleteInvoice }}>
       {children}
     </AppContext.Provider>
   );
