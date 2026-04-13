@@ -91,6 +91,10 @@ export interface InvoiceItem {
   description: string;
   quantity: number;
   unitPrice: number;
+  // NF-e only
+  ncm?: string;
+  cfop?: string;
+  unit?: string;
 }
 
 export interface Invoice {
@@ -107,6 +111,27 @@ export interface Invoice {
   issueDate: string;
   notes: string;
   status: InvoiceStatus;
+  // Tipo de documento
+  type?: 'nfse' | 'nfe';
+  serviceCode?: string;          // código de serviço municipal (NFS-e)
+
+  // Endereço do tomador/destinatário
+  clientAddress?: string;
+  clientNumber?: string;
+  clientDistrict?: string;
+  clientCity?: string;
+  clientState?: string;
+  clientPostalCode?: string;
+
+  // Resposta nfe.io (preenchida após emissão)
+  nfeioId?: string;
+  nfeioStatus?: 'processing' | 'issued' | 'error';
+  nfeioNumber?: string;
+  nfeioPdfUrl?: string;
+  nfeioXmlUrl?: string;
+  nfeioAccessKey?: string;
+  nfeioProtocol?: string;
+  nfeioRawResponse?: Record<string, unknown>;
   createdAt: string;
 }
 
