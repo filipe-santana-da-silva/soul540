@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY tsconfig.json tsconfig.node.json index.html vite.config.ts ./
+COPY shared/ ./shared/
 COPY src/ ./src/
 COPY public/ ./public/
 RUN npx vite build
@@ -12,7 +13,8 @@ RUN npx vite build
 FROM node:20-alpine AS build-franchise
 WORKDIR /app
 COPY franchise/package*.json ./
-RUN npm install
+RUN npm ci
+COPY shared/ /shared/
 COPY franchise/ .
 RUN npm run build
 
@@ -20,7 +22,8 @@ RUN npm run build
 FROM node:20-alpine AS build-factory
 WORKDIR /app
 COPY factory/package*.json ./
-RUN npm install
+RUN npm ci
+COPY shared/ /shared/
 COPY factory/ .
 RUN npm run build
 
