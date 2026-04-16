@@ -5,7 +5,6 @@ import { AppProvider } from '@frontend/contexts/AppContext';
 import { useAuth } from '@frontend/hooks/useAuth';
 import { ROUTES } from '@frontend/routes';
 import Login from '@frontend/pages/Login/Login';
-import ResetPassword from '@frontend/pages/ResetPassword/ResetPassword';
 import Auditoria from '@frontend/pages/Auditoria/Auditoria';
 import Layout from '@frontend/components/Layout/Layout';
 import Dashboard from '@frontend/pages/Dashboard/Dashboard';
@@ -61,7 +60,6 @@ export default function App() {
             <Routes>
               <Route element={<PublicRoute />}>
                 <Route path={ROUTES.LOGIN} element={<Login />} />
-                <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
               </Route>
               <Route element={<PrivateRoute />}>
                 <Route element={<Layout />}>

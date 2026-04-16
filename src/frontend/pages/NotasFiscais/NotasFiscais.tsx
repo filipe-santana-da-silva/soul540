@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '@frontend/contexts/AppContext';
 import { format, parseISO } from 'date-fns';
 import type { Invoice, InvoiceItem, InvoiceStatus } from '@backend/domain/entities/Invoice';
@@ -22,14 +22,16 @@ const statusColors: Record<InvoiceStatus, 'gray' | 'green' | 'red'> = {
   cancelada: 'red',
 };
 
-const emptyItem = (): InvoiceItem => ({ description: '', quantity: 1, unitPrice: 0 });
+const emptyItem = (): InvoiceItem => ({ description: '', quantity: 1, unitPrice: 0, ncm: '', cfop: '', unit: 'UN' });
 
 export default function NotasFiscais() {
-  const { events, invoices, addInvoice, deleteInvoice } = useApp();
+  const { events, invoices, addInvoice, deleteInvoice, emitInvoice, pollInvoiceStatus } = useApp();
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [previewInvoice, setPreviewInvoice] = useState<Invoice | null>(null);
+  const [confirmEmitId, setConfirmEmitId] = useState<string | null>(null);
+  const [emitError, setEmitError] = useState<string | null>(null);
 
   // Form state
   const [formEventId, setFormEventId] = useState('');
@@ -41,9 +43,34 @@ export default function NotasFiscais() {
   const [formNotes, setFormNotes] = useState('');
   const [formStatus, setFormStatus] = useState<InvoiceStatus>('rascunho');
   const [formItems, setFormItems] = useState<InvoiceItem[]>([emptyItem()]);
+  const [formType, setFormType] = useState<'nfse' | 'nfe'>('nfse');
+  const [formServiceCode, setFormServiceCode] = useState('');
+  const [formAddress, setFormAddress] = useState('');
+  const [formAddressNumber, setFormAddressNumber] = useState('');
+  const [formDistrict, setFormDistrict] = useState('');
+  const [formCity, setFormCity] = useState('');
+  const [formState, setFormState] = useState('');
+  const [formPostalCode, setFormPostalCode] = useState('');
 
   const formSubtotal = formItems.reduce((acc, item) => acc + item.quantity * item.unitPrice, 0);
   const formTaxAmount = formSubtotal * (parseFloat(formTaxRate || '0') / 100);
+
+  // Polling for invoices in processing state
+  const processingInvoices = useMemo(
+    () => invoices.filter((inv) => inv.nfeioStatus === 'processing'),
+    [invoices],
+  );
+  const pollInvoiceStatusRef = useRef(pollInvoiceStatus);
+  useEffect(() => { pollInvoiceStatusRef.current = pollInvoiceStatus; }, [pollInvoiceStatus]);
+
+  useEffect(() => {
+    if (processingInvoices.length === 0) return;
+    const ids = processingInvoices.map((inv) => inv.id);
+    const timer = setInterval(() => {
+      ids.forEach((id) => pollInvoiceStatusRef.current(id).catch(() => {}));
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [processingInvoices]);
 
   // Filtered
   const filtered = useMemo(() => {
@@ -55,7 +82,7 @@ export default function NotasFiscais() {
         return (
           inv.clientName.toLowerCase().includes(q) ||
           inv.id.toLowerCase().includes(q) ||
-          event?.name.toLowerCase().includes(q)
+          (event?.name.toLowerCase().includes(q) ?? false)
         );
       }
       return true;
@@ -72,6 +99,14 @@ export default function NotasFiscais() {
     setFormNotes('');
     setFormStatus('rascunho');
     setFormItems([emptyItem()]);
+    setFormType('nfse');
+    setFormServiceCode('');
+    setFormAddress('');
+    setFormAddressNumber('');
+    setFormDistrict('');
+    setFormCity('');
+    setFormState('');
+    setFormPostalCode('');
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -93,6 +128,14 @@ export default function NotasFiscais() {
       notes: formNotes,
       status: formStatus,
       createdAt: new Date().toISOString(),
+      type: formType,
+      serviceCode: formServiceCode,
+      clientAddress: formAddress,
+      clientNumber: formAddressNumber,
+      clientDistrict: formDistrict,
+      clientCity: formCity,
+      clientState: formState,
+      clientPostalCode: formPostalCode,
     };
 
     addInvoice(invoice);
@@ -109,6 +152,19 @@ export default function NotasFiscais() {
   const removeItem = (index: number) => {
     setFormItems((prev) => prev.filter((_, i) => i !== index));
   };
+
+  const handleConfirmEmit = async () => {
+    if (!confirmEmitId) return;
+    setEmitError(null);
+    try {
+      await emitInvoice(confirmEmitId);
+    } catch (err) {
+      setEmitError(err instanceof Error ? err.message : 'Erro ao emitir nota fiscal');
+    }
+    setConfirmEmitId(null);
+  };
+
+  const confirmEmitInvoice = confirmEmitId ? invoices.find((inv) => inv.id === confirmEmitId) : null;
 
   return (
     <div className={styles.page}>
@@ -146,6 +202,14 @@ export default function NotasFiscais() {
         />
       </div>
 
+      {/* Error toast */}
+      {emitError && (
+        <div className={styles.errorToast}>
+          {emitError}
+          <button className={styles.errorToastClose} onClick={() => setEmitError(null)}>X</button>
+        </div>
+      )}
+
       {/* Cards */}
       {filtered.length === 0 ? (
         <div className={styles.emptyState}>Nenhuma nota fiscal encontrada.</div>
@@ -177,8 +241,8 @@ export default function NotasFiscais() {
                     </span>
                   </div>
                   <div className={styles.cardRow}>
-                    <span className={styles.cardLabel}>Itens</span>
-                    <span className={styles.cardValue}>{invoice.items.length}</span>
+                    <span className={styles.cardLabel}>Tipo</span>
+                    <span className={styles.cardValue}>{(invoice.type ?? 'nfse').toUpperCase()}</span>
                   </div>
                   <div className={styles.cardRow}>
                     <span className={styles.cardLabel}>ISS ({invoice.taxRate}%)</span>
@@ -193,6 +257,56 @@ export default function NotasFiscais() {
                     </span>
                   </div>
                 </div>
+
+                {/* nfe.io status section */}
+                <div className={styles.nfeioSection}>
+                  {!invoice.nfeioStatus && invoice.status !== 'cancelada' && (
+                    <button
+                      className={styles.emitBtn}
+                      onClick={() => setConfirmEmitId(invoice.id)}
+                    >
+                      Emitir via nfe.io
+                    </button>
+                  )}
+                  {invoice.nfeioStatus === 'processing' && (
+                    <div className={styles.nfeioProcessing}>
+                      <span className={styles.spinner} />
+                      <Badge variant="amber">Processando...</Badge>
+                    </div>
+                  )}
+                  {invoice.nfeioStatus === 'issued' && (
+                    <div className={styles.nfeioIssued}>
+                      <Badge variant="green">Emitida via nfe.io</Badge>
+                      {invoice.nfeioNumber && (
+                        <span className={styles.nfeioNumber}>NF {invoice.nfeioNumber}</span>
+                      )}
+                      <div className={styles.nfeioLinks}>
+                        {invoice.nfeioPdfUrl && (
+                          <a className={styles.nfeioLink} href={invoice.nfeioPdfUrl} target="_blank" rel="noreferrer">
+                            PDF
+                          </a>
+                        )}
+                        {invoice.nfeioXmlUrl && (
+                          <a className={styles.nfeioLink} href={invoice.nfeioXmlUrl} target="_blank" rel="noreferrer">
+                            XML
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {invoice.nfeioStatus === 'error' && (
+                    <div className={styles.nfeioError}>
+                      <Badge variant="red">Erro nfe.io</Badge>
+                      <button
+                        className={styles.retryBtn}
+                        onClick={() => setConfirmEmitId(invoice.id)}
+                      >
+                        Tentar novamente
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div className={styles.cardFooter}>
                   <span className={styles.cardLabel}>{invoice.clientDocument}</span>
                   <div className={styles.cardActions}>
@@ -218,10 +332,80 @@ export default function NotasFiscais() {
         </div>
       )}
 
+      {/* Confirm emit modal */}
+      {confirmEmitInvoice && (
+        <Modal title="Confirmar Emissao via nfe.io" onClose={() => setConfirmEmitId(null)}>
+          <div className={styles.confirmModal}>
+            <p className={styles.confirmText}>
+              Confirma a emissao da nota fiscal via nfe.io?
+            </p>
+            <div className={styles.confirmDetails}>
+              <div className={styles.confirmRow}>
+                <span>Tipo:</span>
+                <strong>{(confirmEmitInvoice.type ?? 'nfse').toUpperCase()}</strong>
+              </div>
+              <div className={styles.confirmRow}>
+                <span>Cliente:</span>
+                <strong>{confirmEmitInvoice.clientName}</strong>
+              </div>
+              <div className={styles.confirmRow}>
+                <span>Total:</span>
+                <strong>R$ {confirmEmitInvoice.totalValue.toLocaleString('pt-BR')}</strong>
+              </div>
+            </div>
+            <div className={styles.formActions}>
+              <Button variant="secondary" type="button" onClick={() => setConfirmEmitId(null)}>
+                Cancelar
+              </Button>
+              <Button type="button" onClick={handleConfirmEmit}>
+                Emitir
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
       {/* Form Modal */}
       {showForm && (
         <Modal title="Nova Nota Fiscal" size="lg" onClose={() => setShowForm(false)}>
           <form className={styles.form} onSubmit={handleSubmit}>
+            <div className={styles.formRow}>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Tipo de Nota</label>
+                <select
+                  className={styles.formSelect}
+                  value={formType}
+                  onChange={(e) => setFormType(e.target.value as 'nfse' | 'nfe')}
+                >
+                  <option value="nfse">NFS-e (Servico)</option>
+                  <option value="nfe">NF-e (Produto)</option>
+                </select>
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Data de Emissao</label>
+                <input
+                  type="date"
+                  className={styles.formInput}
+                  value={formIssueDate}
+                  onChange={(e) => setFormIssueDate(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {formType === 'nfse' && (
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Codigo de Servico Municipal</label>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  value={formServiceCode}
+                  onChange={(e) => setFormServiceCode(e.target.value)}
+                  placeholder="Ex: 1.01"
+                />
+              </div>
+            )}
+
             <div className={styles.formRow}>
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Evento</label>
@@ -238,13 +422,14 @@ export default function NotasFiscais() {
                 </select>
               </div>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Data de Emissao</label>
+                <label className={styles.formLabel}>Taxa ISS (%)</label>
                 <input
-                  type="date"
+                  type="number"
                   className={styles.formInput}
-                  value={formIssueDate}
-                  onChange={(e) => setFormIssueDate(e.target.value)}
-                  required
+                  value={formTaxRate}
+                  onChange={(e) => setFormTaxRate(e.target.value)}
+                  min="0"
+                  step="0.1"
                 />
               </div>
             </div>
@@ -271,26 +456,82 @@ export default function NotasFiscais() {
               </div>
             </div>
 
-            <div className={styles.formRow}>
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Email do Cliente</label>
-                <input
-                  type="email"
-                  className={styles.formInput}
-                  value={formClientEmail}
-                  onChange={(e) => setFormClientEmail(e.target.value)}
-                />
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Email do Cliente</label>
+              <input
+                type="email"
+                className={styles.formInput}
+                value={formClientEmail}
+                onChange={(e) => setFormClientEmail(e.target.value)}
+              />
+            </div>
+
+            {/* Client address */}
+            <div className={styles.addressSection}>
+              <p className={styles.itemsSectionTitle}>Endereco do Cliente (obrigatorio para emissao)</p>
+              <div className={styles.formRow}>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Logradouro</label>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={formAddress}
+                    onChange={(e) => setFormAddress(e.target.value)}
+                    placeholder="Rua, Avenida..."
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Numero</label>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={formAddressNumber}
+                    onChange={(e) => setFormAddressNumber(e.target.value)}
+                  />
+                </div>
               </div>
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Taxa ISS (%)</label>
-                <input
-                  type="number"
-                  className={styles.formInput}
-                  value={formTaxRate}
-                  onChange={(e) => setFormTaxRate(e.target.value)}
-                  min="0"
-                  step="0.1"
-                />
+              <div className={styles.formRow}>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Bairro</label>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={formDistrict}
+                    onChange={(e) => setFormDistrict(e.target.value)}
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>CEP</label>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={formPostalCode}
+                    onChange={(e) => setFormPostalCode(e.target.value)}
+                    placeholder="00000-000"
+                  />
+                </div>
+              </div>
+              <div className={styles.formRow}>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Cidade</label>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={formCity}
+                    onChange={(e) => setFormCity(e.target.value)}
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Estado (UF)</label>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={formState}
+                    onChange={(e) => setFormState(e.target.value)}
+                    maxLength={2}
+                    placeholder="SP"
+                  />
+                </div>
               </div>
             </div>
 
@@ -298,7 +539,7 @@ export default function NotasFiscais() {
             <div className={styles.itemsSection}>
               <p className={styles.itemsSectionTitle}>Itens da Nota</p>
               {formItems.map((item, index) => (
-                <div key={index} className={styles.itemRow}>
+                <div key={index} className={formType === 'nfe' ? styles.itemRowNfe : styles.itemRow}>
                   <div className={styles.formField}>
                     <label className={styles.formLabel}>Descricao</label>
                     <input
@@ -330,6 +571,40 @@ export default function NotasFiscais() {
                       step="0.01"
                     />
                   </div>
+                  {formType === 'nfe' && (
+                    <>
+                      <div className={styles.formField}>
+                        <label className={styles.formLabel}>NCM</label>
+                        <input
+                          type="text"
+                          className={styles.formInput}
+                          value={item.ncm ?? ''}
+                          onChange={(e) => updateItem(index, 'ncm', e.target.value)}
+                          placeholder="00000000"
+                        />
+                      </div>
+                      <div className={styles.formField}>
+                        <label className={styles.formLabel}>CFOP</label>
+                        <input
+                          type="text"
+                          className={styles.formInput}
+                          value={item.cfop ?? ''}
+                          onChange={(e) => updateItem(index, 'cfop', e.target.value)}
+                          placeholder="5102"
+                        />
+                      </div>
+                      <div className={styles.formField}>
+                        <label className={styles.formLabel}>Unidade</label>
+                        <input
+                          type="text"
+                          className={styles.formInput}
+                          value={item.unit ?? 'UN'}
+                          onChange={(e) => updateItem(index, 'unit', e.target.value)}
+                          placeholder="UN"
+                        />
+                      </div>
+                    </>
+                  )}
                   {formItems.length > 1 && (
                     <button type="button" className={styles.removeItemBtn} onClick={() => removeItem(index)}>
                       X
@@ -402,8 +677,10 @@ export default function NotasFiscais() {
               <p className={styles.previewSectionTitle}>Detalhes</p>
               <div className={styles.previewInfo}>
                 <p>Numero: {previewInvoice.id.toUpperCase()}</p>
+                <p>Tipo: {(previewInvoice.type ?? 'nfse').toUpperCase()}</p>
                 <p>Evento: {events.find((e) => e.id === previewInvoice.eventId)?.name || '-'}</p>
                 <p>Data de Emissao: {format(parseISO(previewInvoice.issueDate), 'dd/MM/yyyy')}</p>
+                {previewInvoice.nfeioNumber && <p>Numero NF: {previewInvoice.nfeioNumber}</p>}
               </div>
             </div>
 

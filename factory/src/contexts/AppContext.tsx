@@ -19,7 +19,10 @@ interface AppContextData {
   updateTask: (id: string, data: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   addInvoice: (invoice: Invoice) => Promise<void>;
+  updateInvoice: (id: string, data: Partial<Invoice>) => Promise<Invoice>;
   deleteInvoice: (id: string) => Promise<void>;
+  emitInvoice: (id: string) => Promise<Invoice>;
+  pollInvoiceStatus: (id: string) => Promise<Invoice>;
 }
 
 const AppContext = createContext<AppContextData>({} as AppContextData);
@@ -115,14 +118,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setInvoices((prev) => [created, ...prev]);
   }, []);
 
+  const updateInvoice = useCallback(async (id: string, data: Partial<Invoice>) => {
+    const res = await apiFetch(`/api/invoices/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+    if (!res.ok) throw new Error('Falha ao atualizar nota fiscal');
+    const updated: Invoice = await res.json();
+    setInvoices((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
+    return updated;
+  }, []);
+
   const deleteInvoice = useCallback(async (id: string) => {
     const res = await apiFetch(`/api/invoices/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Falha ao excluir nota fiscal');
     setInvoices((prev) => prev.filter((inv) => inv.id !== id));
   }, []);
+  const emitInvoice = useCallback(async (id: string) => {
+    const res = await apiFetch(`/api/invoices/${id}/emit`, { method: 'POST' });
+    if (!res.ok) throw new Error('Falha ao emitir nota fiscal');
+    const updated: Invoice = await res.json();
+    setInvoices((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
+    return updated;
+  }, []);
+  const pollInvoiceStatus = useCallback(async (id: string) => {
+    const res = await apiFetch(`/api/invoices/${id}/nfeio-status`);
+    if (!res.ok) throw new Error('Falha ao consultar status da nota');
+    const updated: Invoice = await res.json();
+    setInvoices((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
+    return updated;
+  }, []);
 
   return (
-    <AppContext.Provider value={{ events, finances, tasks, invoices, addFinance, updateFinance, deleteFinance, addEvent, updateEvent, deleteEvent, addTask, updateTask, deleteTask, addInvoice, deleteInvoice }}>
+    <AppContext.Provider value={{ events, finances, tasks, invoices, addFinance, updateFinance, deleteFinance, addEvent, updateEvent, deleteEvent, addTask, updateTask, deleteTask, addInvoice, updateInvoice, deleteInvoice, emitInvoice, pollInvoiceStatus }}>
       {children}
     </AppContext.Provider>
   );

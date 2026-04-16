@@ -324,6 +324,189 @@
   color: $accent;
 }
 
+// Address section
+.addressSection {
+  @include flex-column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: rgba($raw-bg-primary, 0.4);
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+}
+
+// NF-e item row — extra columns
+.itemRowNfe {
+  display: grid;
+  grid-template-columns: 2fr 0.7fr 0.7fr 0.8fr 0.7fr 0.7fr auto;
+  gap: $spacing-sm;
+  align-items: end;
+
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+// nfe.io status section inside card
+.nfeioSection {
+  padding: $spacing-sm $spacing-md;
+  border-top: 1px solid $border;
+  border-bottom: 1px solid $border;
+  margin: $spacing-sm 0;
+}
+
+.nfeioProcessing {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba($accent, 0.3);
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.nfeioIssued {
+  @include flex-column;
+  gap: 6px;
+}
+
+.nfeioNumber {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  font-weight: $font-weight-medium;
+}
+
+.nfeioLinks {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.nfeioLink {
+  padding: 4px 10px;
+  border-radius: $radius-xs;
+  background: rgba($accent, 0.1);
+  border: 1px solid rgba($accent, 0.2);
+  color: $accent;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: rgba($accent, 0.2);
+    border-color: $accent;
+  }
+}
+
+.nfeioError {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.emitBtn {
+  width: 100%;
+  padding: 8px $spacing-md;
+  border-radius: $radius-sm;
+  border: 1px solid rgba($accent, 0.4);
+  background: rgba($accent, 0.07);
+  color: $accent;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: rgba($accent, 0.15);
+    border-color: $accent;
+  }
+}
+
+.retryBtn {
+  padding: 4px 10px;
+  border-radius: $radius-xs;
+  border: 1px solid rgba($danger, 0.3);
+  background: rgba($danger, 0.07);
+  color: $danger;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: rgba($danger, 0.15);
+    border-color: $danger;
+  }
+}
+
+// Confirm modal
+.confirmModal {
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.confirmText {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.confirmDetails {
+  @include flex-column;
+  gap: 8px;
+  padding: $spacing-md;
+  background: rgba($raw-bg-primary, 0.4);
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+}
+
+.confirmRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: $font-size-sm;
+  color: $text-muted;
+
+  strong {
+    color: $text-primary;
+  }
+}
+
+// Error toast
+.errorToast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  margin-bottom: $spacing-md;
+  background: rgba($danger, 0.1);
+  border: 1px solid rgba($danger, 0.25);
+  border-radius: $radius-sm;
+  color: $danger;
+  font-size: $font-size-sm;
+}
+
+.errorToastClose {
+  background: none;
+  border: none;
+  color: $danger;
+  cursor: pointer;
+  font-size: $font-size-xs;
+  padding: 2px 6px;
+  border-radius: $radius-xs;
+
+  &:hover {
+    background: rgba($danger, 0.1);
+  }
+}
+
 .preview {
   background: #ffffff;
   color: #1a1a2e;

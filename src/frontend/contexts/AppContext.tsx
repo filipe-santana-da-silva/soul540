@@ -17,6 +17,8 @@ interface AppContextData {
   addInvoice: (invoice: Invoice) => void;
   updateInvoice: (id: string, data: Partial<Invoice>) => void;
   deleteInvoice: (id: string) => void;
+  emitInvoice: (id: string) => Promise<Invoice>;
+  pollInvoiceStatus: (id: string) => Promise<Invoice>;
   addEvent: (event: Omit<PizzaEvent, 'id' | 'createdAt'>) => Promise<PizzaEvent>;
   updateEvent: (id: string, data: Partial<PizzaEvent>) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
@@ -112,6 +114,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!res.ok) throw new Error('Falha ao excluir nota fiscal');
     setInvoices((prev) => prev.filter((inv) => inv.id !== id));
   }, []);
+  const emitInvoice = useCallback(async (id: string) => {
+    const res = await apiFetch(`/api/invoices/${id}/emit`, { method: 'POST', headers: buildHeaders() });
+    if (!res.ok) throw new Error('Falha ao emitir nota fiscal');
+    const updated: Invoice = await res.json();
+    setInvoices((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
+    return updated;
+  }, []);
+  const pollInvoiceStatus = useCallback(async (id: string) => {
+    const res = await apiFetch(`/api/invoices/${id}/nfeio-status`, { headers: buildHeaders() });
+    if (!res.ok) throw new Error('Falha ao consultar status da nota');
+    const updated: Invoice = await res.json();
+    setInvoices((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
+    return updated;
+  }, []);
 
   const refreshFinances = useCallback(() => {
     const headers: HeadersInit = { 'X-System': 'main' };
@@ -191,7 +207,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       value={{
         events, finances, invoices, tasks,
         addFinance, updateFinance, deleteFinance,
-        addInvoice, updateInvoice, deleteInvoice,
+        addInvoice, updateInvoice, deleteInvoice, emitInvoice, pollInvoiceStatus,
         addEvent, updateEvent, deleteEvent,
         addTask, updateTask, deleteTask,
         refreshFinances, refreshTasks,

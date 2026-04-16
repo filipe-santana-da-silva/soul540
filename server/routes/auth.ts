@@ -2,8 +2,6 @@ import { Router } from 'express';
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 import { validate } from '../middleware/validate';
 import { loginSchema } from '../schemas/auth';
 
@@ -14,8 +12,6 @@ const UserSchema = new Schema({
   isAdmin: { type: Boolean, default: false },
   permissions: { type: [String], default: [] },
   unit: { type: String, enum: ['main', 'franchise', 'factory'], default: 'main' },
-  passwordResetToken:  { type: String, default: null },
-  passwordResetExpiry: { type: Date,   default: null },
 }, { toJSON: { virtuals: true, versionKey: false } });
 
 export const UserModel = mongoose.models.User || mongoose.model('User', UserSchema);
@@ -72,80 +68,6 @@ router.get('/me', async (req, res) => {
 // POST /api/auth/logout
 router.post('/logout', (_req, res) => {
   res.clearCookie('soul540_token', { httpOnly: true, sameSite: 'strict' });
-  res.json({ ok: true });
-});
-
-// POST /api/auth/forgot-password
-router.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email obrigatório' });
-
-  // Always respond OK to prevent email enumeration
-  const user = await UserModel.findOne({ email: email.toLowerCase() });
-  if (!user) return res.json({ ok: true });
-
-  // Generate a secure token
-  const rawToken = crypto.randomBytes(32).toString('hex');
-  const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
-  const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-
-  await UserModel.findByIdAndUpdate(user._id, {
-    passwordResetToken: hashedToken,
-    passwordResetExpiry: expiry,
-  });
-
-  // Check if SMTP is configured
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, APP_URL } = process.env;
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
-    return res.status(503).json({
-      error: 'Envio de email não configurado. Peça ao administrador para redefinir sua senha diretamente em Permissões.',
-    });
-  }
-
-  const resetUrl = `${APP_URL || 'http://localhost:5173'}/reset-password?token=${rawToken}`;
-
-  const transporter = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: parseInt(SMTP_PORT || '587'),
-    secure: parseInt(SMTP_PORT || '587') === 465,
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
-
-  await transporter.sendMail({
-    from: SMTP_FROM || SMTP_USER,
-    to: user.email,
-    subject: 'Soul540 — Redefinição de Senha',
-    html: `
-      <p>Olá, <strong>${user.name}</strong>.</p>
-      <p>Você solicitou a redefinição da sua senha. Clique no link abaixo para continuar:</p>
-      <p><a href="${resetUrl}">${resetUrl}</a></p>
-      <p>O link expira em 1 hora. Se você não solicitou isso, ignore este email.</p>
-    `,
-  });
-
-  res.json({ ok: true });
-});
-
-// POST /api/auth/reset-password
-router.post('/reset-password', async (req, res) => {
-  const { token, password } = req.body;
-  if (!token || !password) return res.status(400).json({ error: 'Dados inválidos' });
-  if (password.length < 6) return res.status(400).json({ error: 'Senha deve ter pelo menos 6 caracteres' });
-
-  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-  const user = await UserModel.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpiry: { $gt: new Date() },
-  });
-  if (!user) return res.status(400).json({ error: 'Link inválido ou expirado' });
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  await UserModel.findByIdAndUpdate(user._id, {
-    passwordHash,
-    passwordResetToken: null,
-    passwordResetExpiry: null,
-  });
-
   res.json({ ok: true });
 });
 

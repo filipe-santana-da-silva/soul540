@@ -88,9 +88,12 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/:id/emit', async (req, res) => {
-  const found = await models.findInAll(req.params.id);
-  if (!found) return res.status(404).json({ error: 'Not found' });
-  const inv = found.doc as any;
+  const model = models.getModel(req);
+  console.log(`[emit] id=${req.params.id} collection=${(model as any).collection?.name} xsystem=${req.headers['x-system']}`);
+  const inv = await model.findById(req.params.id) as any;
+  console.log(`[emit] found=${!!inv}`);
+  if (!inv) return res.status(404).json({ error: 'Not found' });
+  const found = { doc: inv, model };
 
   if (!process.env.NFEIO_API_KEY || !process.env.NFEIO_COMPANY_ID) {
     return res.status(503).json({ error: 'NFEIO_API_KEY e NFEIO_COMPANY_ID não configurados no servidor.' });
@@ -154,15 +157,22 @@ router.post('/:id/emit', async (req, res) => {
     };
   }
 
-  const nfeRes = await fetch(endpoint, {
-    method: 'POST',
-    headers: nfeioHeaders(),
-    body: JSON.stringify(payload),
-  });
+  let nfeRes: Response;
+  let nfeData: any;
+  try {
+    nfeRes = await fetch(endpoint, {
+      method: 'POST',
+      headers: nfeioHeaders(),
+      body: JSON.stringify(payload),
+    });
+    nfeData = await nfeRes.json();
+  } catch (err) {
+    return res.status(502).json({ error: 'Falha de comunicação com nfe.io', detail: String(err) });
+  }
 
-  const nfeData: any = await nfeRes.json();
-
+  console.log(`[emit] nfeio status=${nfeRes.status} endpoint=${endpoint}`);
   if (!nfeRes.ok) {
+    console.log(`[emit] nfeio error:`, JSON.stringify(nfeData));
     return res.status(nfeRes.status).json({ error: nfeData?.message ?? 'Erro ao chamar nfe.io', nfeioRaw: nfeData });
   }
 
@@ -181,9 +191,10 @@ router.post('/:id/emit', async (req, res) => {
 });
 
 router.get('/:id/nfeio-status', async (req, res) => {
-  const found = await models.findInAll(req.params.id);
-  if (!found) return res.status(404).json({ error: 'Not found' });
-  const inv = found.doc as any;
+  const model = models.getModel(req);
+  const inv = await model.findById(req.params.id) as any;
+  if (!inv) return res.status(404).json({ error: 'Not found' });
+  const found = { doc: inv, model };
 
   if (!inv.nfeioId) return res.status(400).json({ error: 'Nota ainda não emitida via nfe.io.' });
 
@@ -192,10 +203,15 @@ router.get('/:id/nfeio-status', async (req, res) => {
     ? `${nfeioBase()}/nfe/${inv.nfeioId}`
     : `${nfeioBase()}/serviceinvoices/${inv.nfeioId}`;
 
-  const nfeRes = await fetch(endpoint, { headers: nfeioHeaders() });
+  let nfeRes: Response;
+  let nfeData: any;
+  try {
+    nfeRes = await fetch(endpoint, { headers: nfeioHeaders() });
+    nfeData = await nfeRes.json();
+  } catch (err) {
+    return res.status(502).json({ error: 'Falha de comunicação com nfe.io', detail: String(err) });
+  }
   if (!nfeRes.ok) return res.status(nfeRes.status).json({ error: 'Erro ao consultar nfe.io' });
-
-  const nfeData: any = await nfeRes.json();
 
   const flowStatus: string = (nfeData.flowStatus ?? nfeData.status ?? '').toLowerCase();
   let nfeioStatus: 'processing' | 'issued' | 'error';
