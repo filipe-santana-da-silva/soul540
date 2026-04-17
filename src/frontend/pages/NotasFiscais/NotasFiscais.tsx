@@ -32,6 +32,7 @@ export default function NotasFiscais() {
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [previewInvoice, setPreviewInvoice] = useState<Invoice | null>(null);
   const [confirmEmitId, setConfirmEmitId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [emitError, setEmitError] = useState<string | null>(null);
 
   // CPF/CNPJ mask
@@ -364,9 +365,18 @@ export default function NotasFiscais() {
                     >
                       ✏
                     </button>
+                    {invoice.status === 'rascunho' && (
+                      <button
+                        className={`${styles.actionBtn} ${styles.actionBtnWarning}`}
+                        onClick={(e) => { e.stopPropagation(); updateInvoice(invoice.id, { status: 'cancelada' }); }}
+                        title="Cancelar nota"
+                      >
+                        🚫
+                      </button>
+                    )}
                     <button
                       className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                      onClick={(e) => { e.stopPropagation(); deleteInvoice(invoice.id); }}
+                      onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(invoice.id); }}
                       title="Excluir"
                     >
                       X
@@ -407,6 +417,19 @@ export default function NotasFiscais() {
               <Button type="button" onClick={handleConfirmEmit}>
                 Emitir
               </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Confirm delete modal */}
+      {confirmDeleteId && (
+        <Modal title="Excluir Nota Fiscal" onClose={() => setConfirmDeleteId(null)}>
+          <div className={styles.confirmModal}>
+            <p className={styles.confirmText}>Tem certeza que deseja excluir esta nota fiscal? Esta ação não pode ser desfeita.</p>
+            <div className={styles.formActions}>
+              <Button variant="secondary" type="button" onClick={() => setConfirmDeleteId(null)}>Cancelar</Button>
+              <Button type="button" onClick={() => { deleteInvoice(confirmDeleteId); setConfirmDeleteId(null); }}>Excluir</Button>
             </div>
           </div>
         </Modal>
