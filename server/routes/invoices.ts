@@ -184,20 +184,17 @@ router.post('/:id/emit', async (req, res) => {
           tax: {
             totalTax: 0,
             icms: {
-              origin: '0',   // 0 = Nacional
-              cst: '40',     // 40 = Isento
-              amount: 0,
-              rate: 0,
-              baseTax: 0,
+              origin: '0',    // 0 = Nacional
+              csosn: '400',   // 400 = Não tributada pelo Simples Nacional (CRT=1)
             },
             pis: {
-              cst: '07',     // 07 = Operação Isenta
+              cst: '07',      // 07 = Operação Isenta
               amount: 0,
               rate: 0,
               baseTax: 0,
             },
             cofins: {
-              cst: '07',     // 07 = Operação Isenta
+              cst: '07',      // 07 = Operação Isenta
               amount: 0,
               rate: 0,
               baseTax: 0,
