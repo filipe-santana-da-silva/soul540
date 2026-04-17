@@ -25,10 +25,11 @@ const statusColors: Record<InvoiceStatus, 'gray' | 'green' | 'red'> = {
 const emptyItem = (): InvoiceItem => ({ description: '', quantity: 1, unitPrice: 0, ncm: '', cfop: '', unit: 'UN' });
 
 export default function NotasFiscais() {
-  const { events, invoices, addInvoice, deleteInvoice, emitInvoice, pollInvoiceStatus } = useApp();
+  const { events, invoices, addInvoice, updateInvoice, deleteInvoice, emitInvoice, pollInvoiceStatus } = useApp();
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [previewInvoice, setPreviewInvoice] = useState<Invoice | null>(null);
   const [confirmEmitId, setConfirmEmitId] = useState<string | null>(null);
   const [emitError, setEmitError] = useState<string | null>(null);
@@ -106,6 +107,7 @@ export default function NotasFiscais() {
   }, [invoices, filterStatus, search, events]);
 
   const resetForm = () => {
+    setEditingInvoice(null);
     setFormEventId('');
     setFormClientName('');
     setFormClientDoc('');
@@ -125,12 +127,33 @@ export default function NotasFiscais() {
     setFormPostalCode('');
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const openEditForm = (invoice: Invoice) => {
+    setEditingInvoice(invoice);
+    setFormEventId(invoice.eventId);
+    setFormClientName(invoice.clientName);
+    setFormClientDoc(invoice.clientDocument);
+    setFormClientEmail(invoice.clientEmail);
+    setFormIssueDate(invoice.issueDate);
+    setFormTaxRate(String(invoice.taxRate));
+    setFormNotes(invoice.notes);
+    setFormStatus(invoice.status);
+    setFormItems(invoice.items.length > 0 ? invoice.items : [emptyItem()]);
+    setFormType(invoice.type ?? 'nfse');
+    setFormServiceCode(invoice.serviceCode ?? '');
+    setFormAddress(invoice.clientAddress ?? '');
+    setFormAddressNumber(invoice.clientNumber ?? '');
+    setFormDistrict(invoice.clientDistrict ?? '');
+    setFormCity(invoice.clientCity ?? '');
+    setFormState(invoice.clientState ?? '');
+    setFormPostalCode(invoice.clientPostalCode ?? '');
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formEventId || !formClientName || formItems.length === 0) return;
 
-    const invoice: Invoice = {
-      id: 'nf-' + Date.now(),
+    const data: Partial<Invoice> = {
       eventId: formEventId,
       clientName: formClientName,
       clientDocument: formClientDoc,
@@ -143,7 +166,6 @@ export default function NotasFiscais() {
       issueDate: formIssueDate,
       notes: formNotes,
       status: formStatus,
-      createdAt: new Date().toISOString(),
       type: formType,
       serviceCode: formServiceCode,
       clientAddress: formAddress,
@@ -154,7 +176,11 @@ export default function NotasFiscais() {
       clientPostalCode: formPostalCode,
     };
 
-    addInvoice(invoice);
+    if (editingInvoice) {
+      await updateInvoice(editingInvoice.id, data);
+    } else {
+      await addInvoice({ ...data, id: 'nf-' + Date.now(), createdAt: new Date().toISOString() } as Invoice);
+    }
     resetForm();
     setShowForm(false);
   };
@@ -234,7 +260,12 @@ export default function NotasFiscais() {
           {filtered.map((invoice) => {
             const event = events.find((e) => e.id === invoice.eventId);
             return (
-              <div key={invoice.id} className={styles.card}>
+              <div
+                key={invoice.id}
+                className={styles.card}
+                onClick={() => setPreviewInvoice(invoice)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.cardHeader}>
                   <span className={styles.cardId}>{invoice.id.toUpperCase()}</span>
                   <Badge variant={statusColors[invoice.status]}>
@@ -275,11 +306,11 @@ export default function NotasFiscais() {
                 </div>
 
                 {/* nfe.io status section */}
-                <div className={styles.nfeioSection}>
+                <div className={styles.nfeioSection} onClick={(e) => e.stopPropagation()}>
                   {!invoice.nfeioStatus && invoice.status !== 'cancelada' && (
                     <button
                       className={styles.emitBtn}
-                      onClick={() => setConfirmEmitId(invoice.id)}
+                      onClick={(e) => { e.stopPropagation(); setConfirmEmitId(invoice.id); }}
                     >
                       Emitir via nfe.io
                     </button>
@@ -323,19 +354,19 @@ export default function NotasFiscais() {
                   )}
                 </div>
 
-                <div className={styles.cardFooter}>
+                <div className={styles.cardFooter} onClick={(e) => e.stopPropagation()}>
                   <span className={styles.cardLabel}>{invoice.clientDocument}</span>
                   <div className={styles.cardActions}>
                     <button
                       className={styles.actionBtn}
-                      onClick={() => setPreviewInvoice(invoice)}
-                      title="Visualizar"
+                      onClick={(e) => { e.stopPropagation(); openEditForm(invoice); }}
+                      title="Editar"
                     >
-                      [=]
+                      ✏
                     </button>
                     <button
                       className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                      onClick={() => deleteInvoice(invoice.id)}
+                      onClick={(e) => { e.stopPropagation(); deleteInvoice(invoice.id); }}
                       title="Excluir"
                     >
                       X
@@ -383,7 +414,7 @@ export default function NotasFiscais() {
 
       {/* Form Modal */}
       {showForm && (
-        <Modal title="Nova Nota Fiscal" size="lg" onClose={() => setShowForm(false)}>
+        <Modal title={editingInvoice ? 'Editar Nota Fiscal' : 'Nova Nota Fiscal'} size="lg" onClose={() => { resetForm(); setShowForm(false); }}>
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.formRow}>
               <div className={styles.formField}>
@@ -667,7 +698,7 @@ export default function NotasFiscais() {
               <Button variant="secondary" type="button" onClick={() => { resetForm(); setShowForm(false); }}>
                 Cancelar
               </Button>
-              <Button type="submit">Salvar Nota Fiscal</Button>
+              <Button type="submit">{editingInvoice ? 'Salvar Alterações' : 'Salvar Nota Fiscal'}</Button>
             </div>
           </form>
         </Modal>
