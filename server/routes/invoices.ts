@@ -183,14 +183,14 @@ router.post('/:id/emit', async (req, res) => {
           cfop: item.cfop,
           taxes: {
             icms: {
-              origin: 0,       // 0 = Nacional
-              cst: '40',       // 40 = Isento
+              origin: 0,            // 0 = Nacional
+              taxSituation: '40',   // 40 = Isento
             },
             pis: {
-              cst: '07',       // 07 = Operação Isenta
+              taxSituation: '07',   // 07 = Operação Isenta
             },
             cofins: {
-              cst: '07',       // 07 = Operação Isenta
+              taxSituation: '07',   // 07 = Operação Isenta
             },
           },
         };
