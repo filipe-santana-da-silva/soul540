@@ -754,7 +754,4 @@ export default function NotasFiscais() {
             <Button onClick={() => window.print()}>Imprimir</Button>
           </div>
         </Modal>
-      )}
-    </div>
-  );
-}
+      

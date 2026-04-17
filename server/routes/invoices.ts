@@ -19,6 +19,34 @@ function nfeioHeaders() {
   };
 }
 
+// Lookup IBGE city code by name (SP state — expand as needed)
+const IBGE_CITIES: Record<string, number> = {
+  'sorocaba': 3552205,
+  'sao paulo': 3550308,
+  'campinas': 3509502,
+  'santos': 3548100,
+  'ribeirao preto': 3543402,
+  'sao bernardo do campo': 3548708,
+  'santo andre': 3547809,
+  'osasco': 3534401,
+  'guarulhos': 3518800,
+  'indaiatuba': 3520509,
+  'jundiai': 3525904,
+  'piracicaba': 3538709,
+  'limeira': 3526902,
+  'bauru': 3506003,
+  'marilia': 3529005,
+  'presidente prudente': 3541406,
+  'sao jose dos campos': 3549904,
+  'sao jose do rio preto': 3549805,
+};
+
+function ibgeCity(cityName: string): { code?: number; name: string } {
+  const key = cityName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const code = IBGE_CITIES[key];
+  return code ? { code, name: cityName } : { name: cityName };
+}
+
 function nfeioBase() {
   return `https://api.nfe.io/v1/companies/${process.env.NFEIO_COMPANY_ID_NFSE}`;
 }
@@ -104,6 +132,21 @@ router.post('/:id/emit', async (req, res) => {
     return res.status(503).json({ error: `NFEIO_API_KEY e NFEIO_COMPANY_ID_${(inv.type ?? 'nfse').toUpperCase()} não configurados no servidor.` });
   }
 
+  // Validações antes de enviar à nfe.io
+  if (inv.type === 'nfe') {
+    const items = inv.items ?? [];
+    if (items.length === 0) {
+      return res.status(400).json({ error: 'NF-e requer pelo menos um item com descrição, NCM e CFOP.' });
+    }
+    const missingNcmCfop = items.find((i: any) => !i.ncm || !i.cfop);
+    if (missingNcmCfop) {
+      return res.status(400).json({ error: `Item "${missingNcmCfop.description || 'sem descrição'}" está sem NCM ou CFOP. Preencha antes de emitir.` });
+    }
+  }
+  if (!inv.clientDocument?.replace(/\D/g, '')) {
+    return res.status(400).json({ error: 'CPF/CNPJ do cliente é obrigatório para emissão.' });
+  }
+
   let endpoint: string;
   let payload: Record<string, unknown>;
 
@@ -119,11 +162,11 @@ router.post('/:id/emit', async (req, res) => {
         federalTaxNumber: borrowerDoc ? Number(borrowerDoc) : undefined,
         address: {
           country: 'BRA',
-          postalCode: inv.clientPostalCode,
+          postalCode: (inv.clientPostalCode ?? '').replace(/\D/g, ''),
           street: inv.clientAddress,
           number: inv.clientNumber,
           district: inv.clientDistrict,
-          city: { name: inv.clientCity },
+          city: ibgeCity(inv.clientCity ?? ''),
           state: inv.clientState,
         },
       },
@@ -151,11 +194,11 @@ router.post('/:id/emit', async (req, res) => {
         federalTaxNumber: borrowerDoc ? Number(borrowerDoc) : undefined,
         address: {
           country: 'BRA',
-          postalCode: inv.clientPostalCode,
+          postalCode: (inv.clientPostalCode ?? '').replace(/\D/g, ''),
           street: inv.clientAddress,
           number: inv.clientNumber,
           district: inv.clientDistrict,
-          city: { name: inv.clientCity },
+          city: ibgeCity(inv.clientCity ?? ''),
           state: inv.clientState,
         },
       },
