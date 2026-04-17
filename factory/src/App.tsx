@@ -14,7 +14,6 @@ import Permissoes from '@/pages/Permissoes/Permissoes/Permissoes';
 import Financeiro from '@/pages/Financeiro/Financeiro/Financeiro';
 import Tarefas from '@/pages/Tarefas/Tarefas/Tarefas';
 import MinhaConta from '@/pages/MinhaConta/MinhaConta';
-import NotasFiscais from '@/pages/NotasFiscais/NotasFiscais';
 
 function AppLoading() {
   return (
@@ -56,8 +55,7 @@ export default function App() {
               <Route path={ROUTES.ESTOQUE_UTENSILIOS} element={<EstoqueUtensilios />} />
               <Route path={ROUTES.PERMISSOES} element={<Permissoes />} />
               <Route path={ROUTES.FINANCEIRO} element={<Financeiro />} />
-              <Route path={ROUTES.NOTAS_FISCAIS} element={<NotasFiscais />} />
-              <Route path={ROUTES.TAREFAS} element={<Tarefas />} />
+<Route path={ROUTES.TAREFAS} element={<Tarefas />} />
               <Route path={ROUTES.USUARIO} element={<MinhaConta />} />
             </Route>
           </Route>
